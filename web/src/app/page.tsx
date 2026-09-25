@@ -1,4 +1,4 @@
-import ReadingExperience from "@/features/relationship/ReadingExperience";
+import HomePage from "@/features/home/HomePage";
 export default function Home() {
-  return <ReadingExperience />;
+  return <HomePage />;
 }

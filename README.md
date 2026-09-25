@@ -4,7 +4,11 @@
 saju/
 ├── web/                       Next.js 웹앱과 API, 테스트
 │   ├── src/app/               공개 화면과 서버 라우트
-│   ├── src/features/relationship/ 현재 관계 리포트 화면·콘텐츠·스타일·서버 생성
+│   ├── src/features/home/     세 콘텐츠를 고르는 메인
+│   ├── src/features/reading/  공용 입력·리더·상품 목차·서버 저장
+│   ├── src/features/traditional/ 정통 사주 전용 해석
+│   ├── src/features/relationship/ 연애 사주 전용 해석
+│   ├── src/features/mbti/      사주×MBTI 전용 비교 해석
 │   ├── src/lib/               공통 사주 계산, 입력 검증, HTTP 도구
 │   ├── src/styles/            공통 CSS와 디자인 변수
 │   ├── src/types/             공통 자료형

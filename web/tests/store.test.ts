@@ -4,7 +4,7 @@ import {
   deleteStoredReport,
   getStoredReport,
   unlockStoredReport,
-} from "../src/features/relationship/server/report-store";
+} from "../src/features/reading/server/report-store";
 import { calculateChart } from "../src/lib/saju";
 import type { BirthInput } from "../src/types/reading";
 const input: BirthInput = {

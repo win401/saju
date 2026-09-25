@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import "@/styles/tokens.css";
 import "@/styles/globals.css";
-import "@/features/relationship/reading.css";
-import "@/features/relationship/story.css";
+import "@/features/reading/reading.css";
+import "@/features/reading/story.css";
+import "@/features/home/home.css";
 export const metadata: Metadata = {
-  title: "결 — 나의 관계를 읽는 사주",
+  title: "결 — 정통 사주 · 연애 사주 · 사주×MBTI",
   description:
-    "사주와 내가 선택한 성격 유형, 두 가지 관점으로 읽는 나의 이야기.",
+    "태어난 여덟 글자에서 시작하는 나의 이야기. 정통 사주, 연애 사주, 사주와 MBTI를 만나요.",
   robots: { index: false, follow: false },
   icons: { icon: "/favicon.svg" },
 };

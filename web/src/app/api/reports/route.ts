@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { birthSchema } from "@/lib/birth-schema";
 import { calculateChart } from "@/lib/saju";
-import { createStoredReport } from "@/features/relationship/server/report-store";
+import { createStoredReport } from "@/features/reading/server/report-store";
 import { checkOrigin, json, readSmallJson, SESSION_COOKIE } from "@/lib/http";
 export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
     const r = createStoredReport(owner, input, chart);
     const response = json({
       id: r.id,
+      theme: input.theme,
       nickname: input.nickname,
       gender: input.gender,
       mbti: input.mbti,

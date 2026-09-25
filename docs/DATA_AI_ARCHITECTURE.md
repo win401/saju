@@ -1,6 +1,6 @@
 # 이용 데이터·분석·AI 설계 제안
 
-상태: 제안 · 2026-09-25. 현재 코드는 운영용 데이터베이스를 사용하지 않는다. [`report-store.ts`](../web/src/features/relationship/server/report-store.ts)는 출생 입력과 결과를 서버 메모리에 최대 1시간 보관하는 시제품용 구현이다.
+상태: 제안 · 2026-09-25. 현재 코드는 운영용 데이터베이스를 사용하지 않는다. [`report-store.ts`](../web/src/features/reading/server/report-store.ts)는 출생 입력과 결과를 서버 메모리에 최대 1시간 보관하는 시제품용 구현이다.
 
 ## 원칙과 데이터 구분
 

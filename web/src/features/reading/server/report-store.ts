@@ -1,14 +1,13 @@
 import { randomUUID } from "node:crypto";
 import type { BirthInput, Chart, Chapter } from "../../../types/reading";
-import { createReport } from "./report";
-import { RULESET_VERSION } from "./interpretation";
+import { createThemedReport, reportVersion } from "./create-report";
 
 type StoredReport = {
   id: string;
   owner: string;
   input: BirthInput;
   chart: Chart;
-  content: ReturnType<typeof createReport>;
+  content: ReturnType<typeof createThemedReport>;
   createdAt: number;
   unlocked: boolean;
 };
@@ -36,7 +35,7 @@ export function createStoredReport(
     owner,
     input,
     chart,
-    content: createReport(input, chart),
+    content: createThemedReport(input, chart),
     createdAt: Date.now(),
     unlocked: false,
   };
@@ -48,7 +47,7 @@ export function createStoredReport(
 export function getStoredReport(id: string, owner: string | undefined) {
   purge();
   const r = reports.get(id);
-  if (r && r.content.audit?.version !== RULESET_VERSION) {
+  if (r && r.content.audit?.version !== reportVersion(r.input.theme)) {
     reports.delete(id);
     return null;
   }

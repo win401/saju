@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { MBTI_TYPES } from "@/lib/birth-schema";
-import { formatPrice, product } from "./product";
+import { formatPrice, READING_PRODUCTS } from "./catalog";
 import ExplanationBasis from "./ExplanationBasis";
+import ChapterNarrative from "./ChapterNarrative";
 import {
   ELEMENTS,
   type BirthInput,
@@ -12,6 +14,7 @@ import {
   type FullReading,
   type Gender,
   type RelationshipFocus,
+  type ReadingTheme,
 } from "@/types/reading";
 
 const genderOptions: { value: Gender; label: string }[] = [
@@ -47,7 +50,7 @@ const storyPaths = [
     title: "나를 지키는 기준",
     scene: "상대에게 맞추다 내 마음을 놓칠 때",
     reply: "나를 지키는 기준부터 짚어볼게요.",
-    chapter: "다를 때 지키는 기준",
+    chapter: "좋아하는데 자꾸 어긋나는 순간",
   },
 ] as const;
 
@@ -62,8 +65,9 @@ const initial: BirthInput = {
   location: "KR",
 };
 
-export default function ReadingExperience() {
-  const [input, setInput] = useState<BirthInput>(initial);
+export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
+  const product = READING_PRODUCTS[theme];
+  const [input, setInput] = useState<BirthInput>({ ...initial, theme });
   const [view, setView] = useState<"input" | "result">("input");
   const [report, setReport] = useState<ReadingPreview | null>(null);
   const [full, setFull] = useState<FullReading | null>(null);
@@ -124,7 +128,12 @@ export default function ReadingExperience() {
       const response = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...input, focus: storyPath }),
+        body: JSON.stringify({
+          ...input,
+          theme,
+          mbti: theme === "mbti" ? input.mbti : null,
+          focus: theme === "love" ? storyPath : null,
+        }),
       });
       const data = await response.json();
       if (!response.ok)
@@ -178,7 +187,7 @@ export default function ReadingExperience() {
     await discard();
     setReport(null);
     setFull(null);
-    setInput(initial);
+    setInput({ ...initial, theme });
     setStoryPath(null);
     setActiveChapter(0);
     setView("input");
@@ -208,7 +217,7 @@ export default function ReadingExperience() {
         <span className="dev-badge">출시 전 체험</span>
       </header>
       <main>
-        {view === "input" && (
+        {view === "input" && theme === "love" && (
           <section className="story-hero" aria-labelledby="story-title">
             <Image
               className="story-hero-image"
@@ -225,20 +234,17 @@ export default function ReadingExperience() {
               <i />
             </div>
             <div className="story-topline">
-              <span>결 · 첫 번째 이야기</span>
+              <span>결 · {product.name}</span>
               <span>SCENE 01 / 03</span>
             </div>
             <div className="story-hero-content">
               <span className="story-speaker">여울이 건네는 첫 장</span>
               <h1 id="story-title">
-                내 마음에도
+                {product.heroTitle[0]}
                 <br />
-                <em>결이 있다.</em>
+                <em>{product.heroTitle[1]}</em>
               </h1>
-              <p>
-                사주가 말하는 나와, 내가 아는 나.
-                <br />그 사이에서 관계의 실을 따라가요.
-              </p>
+              <p>{product.subtitle}</p>
               <button
                 className="story-enter"
                 type="button"
@@ -250,6 +256,57 @@ export default function ReadingExperience() {
             <span className="story-scroll-hint" aria-hidden="true">
               SCROLL TO BEGIN ↓
             </span>
+          </section>
+        )}
+        {view === "input" && theme !== "love" && (
+          <section
+            className={`book-intro book-intro-${theme}`}
+            aria-labelledby="book-title"
+          >
+            <Link href="/" className="book-back">
+              ← 모든 이야기
+            </Link>
+            <div className="book-masthead">
+              <span>결의 서재 · {product.name}</span>
+              <span>VOL. {theme === "traditional" ? "01" : "03"}</span>
+            </div>
+            <div className="book-emblem" aria-hidden="true">
+              {product.symbol}
+            </div>
+            <p className="eyebrow">{product.name}</p>
+            <h1 id="book-title">
+              {product.heroTitle[0]}
+              <br />
+              <em>{product.heroTitle[1]}</em>
+            </h1>
+            <p className="book-description">{product.intro}</p>
+            <div className="book-tags">
+              <span>
+                {theme === "traditional"
+                  ? "원국 · 오행 · 십성"
+                  : "선택한 MBTI × 원국"}
+              </span>
+              <span>무료 2장 + 상세 4장</span>
+            </div>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => scrollTo(formSection.current)}
+            >
+              내 이야기 펼치기 <span aria-hidden="true">↓</span>
+            </button>
+            <details className="book-contents">
+              <summary>이 책에서 읽게 될 이야기</summary>
+              <ol>
+                {product.chapters.map((item) => (
+                  <li key={item.title}>
+                    <strong>{item.title}</strong>
+                    <span>{item.free ? "무료" : "상세"}</span>
+                    <p>{item.detail}</p>
+                  </li>
+                ))}
+              </ol>
+            </details>
           </section>
         )}
         <nav className="journey" aria-label="체험 단계">
@@ -265,87 +322,93 @@ export default function ReadingExperience() {
         </nav>
         {view === "input" ? (
           <section className="intro-grid">
-            <section
-              className="path-stage"
-              ref={pathSection}
-              aria-labelledby="path-heading"
-            >
-              <div className="stage-index">
-                <span>THE FIRST THREAD</span>
-                <span>01 — 03</span>
-              </div>
-              <p className="stage-kicker">여울의 질문</p>
-              <h2 id="path-heading">
-                지금, 어느 장면이
-                <br />
-                가장 마음에 남나요?
-              </h2>
-              <p className="path-intro">
-                정답을 고르는 검사가 아니에요. 이번 이야기에서 먼저 읽고 싶은
-                장면을 골라주세요.
-              </p>
-              <div
-                className="path-list"
-                role="group"
-                aria-label="먼저 읽고 싶은 관계 장면"
+            {theme === "love" && (
+              <section
+                className="path-stage"
+                ref={pathSection}
+                aria-labelledby="path-heading"
               >
-                {storyPaths.map((path) => (
-                  <button
-                    className={`path-option ${storyPath === path.id ? "is-selected" : ""}`}
-                    type="button"
-                    key={path.id}
-                    aria-pressed={storyPath === path.id}
-                    onClick={() => setStoryPath(path.id)}
-                  >
-                    <span className="path-number">{path.number}</span>
-                    <span className="path-copy">
-                      <strong>{path.title}</strong>
-                      <small>{path.scene}</small>
-                    </span>
-                    <span className="path-arrow" aria-hidden="true">
-                      ↗
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <div className="guide-reply" aria-live="polite">
-                <Image
-                  src="/images/yeoul-portrait.png"
-                  alt=""
-                  width={68}
-                  height={82}
-                  sizes="68px"
-                />
-                <p>
-                  <b>여울</b>
+                <div className="stage-index">
+                  <span>THE FIRST THREAD</span>
+                  <span>01 — 03</span>
+                </div>
+                <p className="stage-kicker">여울의 질문</p>
+                <h2 id="path-heading">
+                  지금, 어느 장면이
                   <br />
-                  {chosenPath?.reply ??
-                    "실 하나를 골라주면, 그 장면부터 함께 읽을게요."}
+                  가장 마음에 남나요?
+                </h2>
+                <p className="path-intro">
+                  정답을 고르는 검사가 아니에요. 이번 이야기에서 먼저 읽고 싶은
+                  장면을 골라주세요.
                 </p>
-              </div>
-              <button
-                className="path-continue"
-                type="button"
-                onClick={() => scrollTo(formSection.current)}
-              >
-                이제 내 정보를 적을게요 <span aria-hidden="true">↓</span>
-              </button>
-            </section>
+                <div
+                  className="path-list"
+                  role="group"
+                  aria-label="먼저 읽고 싶은 관계 장면"
+                >
+                  {storyPaths.map((path) => (
+                    <button
+                      className={`path-option ${storyPath === path.id ? "is-selected" : ""}`}
+                      type="button"
+                      key={path.id}
+                      aria-pressed={storyPath === path.id}
+                      onClick={() => setStoryPath(path.id)}
+                    >
+                      <span className="path-number">{path.number}</span>
+                      <span className="path-copy">
+                        <strong>{path.title}</strong>
+                        <small>{path.scene}</small>
+                      </span>
+                      <span className="path-arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="guide-reply" aria-live="polite">
+                  <Image
+                    src="/images/yeoul-portrait.png"
+                    alt=""
+                    width={68}
+                    height={82}
+                    sizes="68px"
+                  />
+                  <p>
+                    <b>여울</b>
+                    <br />
+                    {chosenPath?.reply ??
+                      "실 하나를 골라주면, 그 장면부터 함께 읽을게요."}
+                  </p>
+                </div>
+                <button
+                  className="path-continue"
+                  type="button"
+                  onClick={() => scrollTo(formSection.current)}
+                >
+                  이제 내 정보를 적을게요 <span aria-hidden="true">↓</span>
+                </button>
+              </section>
+            )}
             <section
               className="birth-card"
               ref={formSection}
               aria-labelledby="birth-heading"
             >
               <div className="card-kicker">
-                <span>나의 이야기 준비하기</span>
-                <span>02 / 03</span>
+                <span>{product.name} · 내 정보 입력</span>
+                <span>INPUT</span>
               </div>
               <h2 id="birth-heading">당신의 시작을 알려주세요</h2>
               <p className="muted card-description">
                 이름 대신 별명으로도 충분해요.{" "}
                 {chosenPath
                   ? `‘${chosenPath.title}’을 먼저 읽어요.`
-                  : "관심 장면은 위에서 선택할 수 있어요."}
+                  : theme === "traditional"
+                    ? "MBTI 없이 출생정보로 사주를 읽어요."
+                    : theme === "mbti"
+                      ? "알고 있는 MBTI를 함께 선택해주세요."
+                      : "관심 장면은 위에서 선택할 수 있어요."}
               </p>
               <form onSubmit={submit}>
                 <fieldset disabled={busy}>
@@ -468,30 +531,33 @@ export default function ReadingExperience() {
                       </small>
                     )}
                   </div>
-                  <div className="field">
-                    <label htmlFor="mbti">
-                      알고 있는 MBTI 유형 <span className="optional">선택</span>
-                    </label>
-                    <select
-                      id="mbti"
-                      value={input.mbti ?? ""}
-                      onChange={(e) => update("mbti", e.target.value || null)}
-                    >
-                      <option value="">모름 / 사주만 보기</option>
-                      {MBTI_TYPES.map((type) => (
-                        <option key={type}>{type}</option>
-                      ))}
-                    </select>
-                    <small className="field-help">
-                      검사를 진행하지 않으며, 선택한 유형을 비교에 사용해요.
-                    </small>
-                  </div>
+                  {theme === "mbti" && (
+                    <div className="field">
+                      <label htmlFor="mbti">알고 있는 MBTI 유형</label>
+                      <select
+                        id="mbti"
+                        required
+                        value={input.mbti ?? ""}
+                        onChange={(e) => update("mbti", e.target.value || null)}
+                      >
+                        <option value="">유형을 선택해주세요</option>
+                        {MBTI_TYPES.map((type) => (
+                          <option key={type}>{type}</option>
+                        ))}
+                      </select>
+                      <small className="field-help">
+                        별도 검사는 제공하지 않아요. 유형을 모르면{" "}
+                        <Link href="/readings/traditional">정통 사주</Link>로
+                        읽을 수 있어요.
+                      </small>
+                    </div>
+                  )}
                   <details className="input-policy">
                     <summary>입력 정보와 계산 기준</summary>
                     <p>
                       한국 표준시(UTC+9), 자정에 날짜가 바뀌는 기준을
                       사용합니다. 출생지별 태양시 보정과 해외 출생은 아직
-                      지원하지 않아요. 원국 계산은 베타이며, 관계에 연결한 해석
+                      지원하지 않아요. 원국 계산은 베타이며, 이야기에 담긴 해석
                       문안은 검수 중입니다.
                     </p>
                     <p>
@@ -526,7 +592,9 @@ export default function ReadingExperience() {
                 <button className="text-button" onClick={edit}>
                   ← 입력 수정
                 </button>
-                <span>관계의 결 · {full ? "전체 체험" : "무료 요약"}</span>
+                <span>
+                  {product.name} · {full ? "전체 체험" : "무료 해설"}
+                </span>
               </div>
               <div className="result-hero">
                 <div className="result-scene" aria-hidden="true">
@@ -537,7 +605,7 @@ export default function ReadingExperience() {
                     sizes="(max-width: 480px) 100vw, 480px"
                   />
                 </div>
-                <p className="eyebrow">여울의 서재 · 세 번째 장면</p>
+                <p className="eyebrow">여울의 서재 · {product.name}</p>
                 <h1 ref={heading} tabIndex={-1}>
                   {report.nickname || "당신"}
                   {report.nickname ? "님" : ""}의 이야기를
@@ -646,7 +714,7 @@ export default function ReadingExperience() {
                 </p>
                 <article className="reading-prose">
                   <h3>{report.intro.title}</h3>
-                  <p>{report.intro.body}</p>
+                  <ChapterNarrative chapter={report.intro} />
                   <blockquote>{report.intro.question}</blockquote>
                   <ExplanationBasis evidence={report.intro.evidence} />
                 </article>
@@ -654,12 +722,17 @@ export default function ReadingExperience() {
               <section className="comparison-card">
                 <p className="eyebrow">CHAPTER 02 · 무료</p>
                 <h2>{report.comparison.title}</h2>
-                <p>{report.comparison.body}</p>
+                <ChapterNarrative
+                  chapter={report.comparison}
+                  headingLevel={3}
+                />
                 <blockquote>{report.comparison.question}</blockquote>
                 <ExplanationBasis evidence={report.comparison.evidence} />
                 <small>
-                  유형 설명과 전통 해석을 비교하는 자기성찰 콘텐츠이며,
-                  성격·미래를 진단하지 않습니다.
+                  {theme === "mbti"
+                    ? "입력한 유형과 전통 해석을 비교하는 콘텐츠입니다."
+                    : "전통의 상징을 바탕으로 풀어쓴 사주 해석입니다."}{" "}
+                  성격이나 미래를 확정하지 않습니다.
                 </small>
               </section>
               {!full ? (
@@ -667,9 +740,9 @@ export default function ReadingExperience() {
                   <div>
                     <p className="eyebrow">다음 장에서 만날 이야기</p>
                     <h2 id="paywall-title">
-                      이제, 관계 속 나를
+                      {product.name},
                       <br />
-                      조금 더 깊이 읽어보세요.
+                      다음 네 장을 펼쳐보세요.
                     </h2>
                     <ol className="chapter-list">
                       {product.chapters
@@ -703,8 +776,14 @@ export default function ReadingExperience() {
                     <p className="price-note">출시 예정가 · 현재는 무료 체험</p>
                     <ul>
                       <li>안내된 네 가지 상세 챕터</li>
-                      <li>사주와 선택한 유형을 함께 읽기</li>
-                      <li>관계에 적용하는 질문과 대화 예시</li>
+                      <li>
+                        {theme === "mbti"
+                          ? "사주와 선택한 유형을 함께 읽기"
+                          : theme === "traditional"
+                            ? "재능·일과 재물·대인관계 종합 해설"
+                            : "끌림·표현·갈등·나에게 맞는 관계"}
+                      </li>
+                      <li>해석에 사용한 사주 단서 확인</li>
                     </ul>
                     <button
                       className="primary"
@@ -732,7 +811,7 @@ export default function ReadingExperience() {
                     <span>체험 주문 완료 · 청구 없음</span>
                   </div>
                   <h2 ref={fullHeading} tabIndex={-1}>
-                    관계의 결, 조금 더 깊이
+                    {product.fullTitle}
                   </h2>
                   <div className="chapter-reader">
                     <div
@@ -757,12 +836,14 @@ export default function ReadingExperience() {
                       <span>0{activeChapter + 3}</span>
                       <div>
                         <p className="chapter-scene-label">
-                          여울의 서재 · {activeChapter + 1}번째 실
+                          {product.name} · {activeChapter + 1}번째 장
                         </p>
                         <h3 ref={chapterHeading} tabIndex={-1}>
                           {full.chapters[activeChapter].title}
                         </h3>
-                        <p>{full.chapters[activeChapter].body}</p>
+                        <ChapterNarrative
+                          chapter={full.chapters[activeChapter]}
+                        />
                         <blockquote>
                           {full.chapters[activeChapter].question}
                         </blockquote>
@@ -802,6 +883,9 @@ export default function ReadingExperience() {
                       <button className="secondary" onClick={reset}>
                         입력 정보 지우고 다시 시작
                       </button>
+                      <Link className="other-readings" href="/">
+                        다른 이야기 둘러보기 →
+                      </Link>
                       <small>
                         페이지를 닫거나 새로고침하면 결과 화면은 초기화됩니다.
                       </small>

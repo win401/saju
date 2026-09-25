@@ -6,12 +6,14 @@ import {
 } from "../../../lib/saju-analysis";
 import type { Chart, ReadingEvidence } from "../../../types/reading";
 
-export const RULESET_VERSION = "relationship-0.2.0";
+export const RULESET_VERSION = "relationship-0.3.0";
 
 // These are authored reading lenses, not validated personality predictions.
 // Conditions use chart facts; prose and selection priorities require editorial review.
 export const RULE_CATALOG = {
   "intro.day": "확정된 일간의 음양·오행과 일주를 첫 읽기의 기준으로 사용",
+  "intimacy.day-root":
+    "확정된 일지의 첫 지장간을 친밀감 서사의 편집 단서로 사용",
   "pace.month-root": "확정된 월지의 첫 지장간 십성을 속도 질문의 단서로 선택",
   "pace.day-root": "월주 미확정이면 일지의 첫 지장간으로만 속도 질문 구성",
   "expression.pair":
@@ -383,5 +385,11 @@ export function buildRelationshipPlan(chart: Chart) {
       ? relationEvidence
       : [stemEvidence(day, true)],
   };
-  return { facts, pace, expression, boundary };
+  return {
+    facts,
+    pace,
+    expression,
+    boundary,
+    anchors: { day, pace: anchor, expression: expressionAnchor, expressionGod },
+  };
 }

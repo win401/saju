@@ -737,3 +737,166 @@ blockquote {
   margin: 5px 0 0;
   color: #586555;
 }
+
+.chapter-narrative .narrative-lead {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  line-height: 1.9;
+  color: #765337;
+  margin: 18px 0 30px;
+  padding-left: 15px;
+  border-left: 2px solid #bd7a52;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.narrative-sections {
+  display: grid;
+  gap: 29px;
+}
+.narrative-section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.narrative-section-heading > span {
+  flex: 0 0 auto;
+  font: 0.66rem var(--font-body);
+  color: #a87750;
+  letter-spacing: 0.08em;
+}
+.narrative-section .narrative-section-heading > :is(h3, h4) {
+  margin: 0;
+  font: 600 0.94rem/1.65 var(--font-body);
+  color: #344d3f;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.narrative-section > p {
+  font: 0.92rem/1.95 var(--font-body);
+  color: #515d50;
+  margin: 0;
+  white-space: pre-line;
+}
+.narrative-section > p + p {
+  margin-top: 15px;
+}
+.narrative-scene {
+  padding: 19px 16px;
+  background: #f0e9db;
+  border: 1px solid #e4d8c5;
+  border-radius: 3px 16px 16px;
+}
+.narrative-voice {
+  padding: 20px 17px;
+  background: #e9eee3;
+  border-radius: 3px;
+}
+.narrative-voice > p {
+  color: #3e5946;
+}
+.narrative-practice {
+  border-top: 1px dashed #c4b89e;
+  padding-top: 20px;
+}
+
+.book-intro {
+  position: relative;
+  overflow: hidden;
+  margin: -26px -20px 0;
+  padding: 20px 25px 28px;
+  background:
+    radial-gradient(ellipse at 80% 22%, #b9904f2b, transparent 50%), #f0e8d8;
+  border-bottom: 1px solid #d9c9a8;
+}
+.book-back {
+  text-decoration: none;
+  color: #627166;
+  font-size: 0.75rem;
+}
+.book-masthead {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #cabc9f;
+  padding-top: 12px;
+  margin: 24px 0 24px;
+  font: 0.65rem var(--font-body);
+  color: #8a7351;
+  letter-spacing: 0.12em;
+}
+.book-emblem {
+  display: grid;
+  place-items: center;
+  width: 73px;
+  height: 73px;
+  border: 1px solid #b7a27b;
+  outline: 1px solid #c9b795;
+  outline-offset: -7px;
+  border-radius: 50%;
+  margin: 0 0 20px;
+  color: #8b643c;
+  font: 2.45rem var(--font-display);
+}
+.book-intro h1 {
+  font: 400 clamp(1.65rem, 6vw, 2.1rem)/1.65 var(--font-display);
+  letter-spacing: -0.04em;
+  color: #2f483b;
+  margin: 0 0 17px;
+}
+.book-intro h1 em {
+  font-style: normal;
+  color: #a36b46;
+}
+.book-description {
+  font-size: 0.87rem;
+  color: #6a705e;
+}
+.book-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 20px 0;
+}
+.book-tags span {
+  font-size: 0.66rem;
+  padding: 4px 9px;
+  border: 1px solid #d0c3a9;
+  border-radius: 3px;
+  color: #756f5c;
+}
+.book-intro-mbti {
+  background:
+    radial-gradient(ellipse at 80% 22%, #909bbc25, transparent 50%), #e9eee8;
+}
+.book-contents {
+  margin-top: 22px;
+  font-size: 0.8rem;
+  color: #526151;
+}
+.book-contents summary {
+  cursor: pointer;
+}
+.book-contents ol {
+  padding-left: 20px;
+  margin: 18px 0 0;
+}
+.book-contents li {
+  padding: 10px 0;
+}
+.book-contents li span {
+  font-size: 0.65rem;
+  color: #a16f49;
+  margin-left: 8px;
+}
+.book-contents li p {
+  font-size: 0.73rem;
+  color: #777968;
+  margin: 4px 0 0;
+}
+.other-readings {
+  display: inline-block;
+  margin: 22px 0 0;
+  font-size: 0.85rem;
+  color: #54745a;
+  text-underline-offset: 5px;
+}

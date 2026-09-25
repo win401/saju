@@ -9,32 +9,32 @@ export const product = {
   chapters: [
     {
       title: "내 사주의 기본 구성",
-      detail: "태어난 날에서 시작하는 이야기",
+      detail: "내 일간의 이미지와 가까워진 뒤 드러나는 마음",
       free: true,
     },
     {
       title: "사주와 성격 유형, 두 가지 시선",
-      detail: "내가 선택한 유형과 나란히 읽기",
+      detail: "겉으로 전하는 방식과 속으로 바라는 것",
       free: true,
     },
     {
       title: "가까워지는 나만의 속도",
-      detail: "만남과 연락의 속도를 조율하는 질문",
+      detail: "끌리는 순간부터 편안한 사이가 되기까지",
       free: false,
     },
     {
       title: "마음을 전하는 방법",
-      detail: "내 표현 선호와 바로 써볼 대화 문장",
+      detail: "내 진심이 다르게 들리는 이유와 대화 장면",
       free: false,
     },
     {
-      title: "다를 때 지키는 기준",
-      detail: "엇갈린 순간에 확인할 기준과 경계",
+      title: "좋아하는데 자꾸 어긋나는 순간",
+      detail: "합과 충으로 읽는 친밀함, 차이, 화해의 실마리",
       free: false,
     },
     {
-      title: "이번 주의 관계 실험",
-      detail: "이번 주에 해볼 한 문장과 돌아볼 기록",
+      title: "나에게 맞는 사랑의 방식",
+      detail: "나를 편하게 하는 관계와 마음이 전해지는 한 문장",
       free: false,
     },
   ],

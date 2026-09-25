@@ -28,21 +28,21 @@ npm start          # production 모드에서는 모의 결제 차단
 | -------------------------------------------- | ------------------------------------------------- |
 | 색상, 글꼴, 간격, 모서리                     | `src/styles/tokens.css`                           |
 | 공통 버튼, 폼, 헤더, 푸터                    | `src/styles/globals.css`                          |
-| 입력/리포트/구매 화면, 모바일 배치           | `src/features/relationship/reading.css`           |
-| 브랜드, 캐릭터 이름, 상품명, 예정 가격, 목차 | `src/features/relationship/product.ts`            |
-| 화면 구조와 입력 상태                        | `src/features/relationship/ReadingExperience.tsx` |
+| 입력/리포트/구매 화면, 모바일 배치           | `src/features/reading/reading.css`           |
+| 상품명, 예정 가격, 목차 | `src/features/reading/catalog.ts`            |
+| 화면 구조와 입력 상태                        | `src/features/reading/ReadingExperience.tsx` |
 | 날짜 검증과 간지 계산                        | `src/lib/saju.ts`                                 |
 | 십성·지장간·월지 계절·육합/충 특징          | `src/lib/saju-analysis.ts`                       |
 | 관계 규칙의 조건·편집 문안·선택 순서        | `src/features/relationship/server/interpretation.ts` |
 | 장별 문안·MBTI·관심 장면·내부 근거 기록     | `src/features/relationship/server/report.ts`      |
-| 장별 ‘이렇게 읽은 이유’                    | `src/features/relationship/ExplanationBasis.tsx`  |
+| 장별 ‘이렇게 읽은 이유’                    | `src/features/reading/ExplanationBasis.tsx`  |
 | 입력 형식과 허용 MBTI 목록                   | `src/lib/birth-schema.ts`                         |
 
 CSS는 의미 있는 일반 클래스명을 씁니다. 기본 화면은 모바일 전용이며 `--page-width`를 바꾸면 PC 미리보기의 폭도 변경됩니다. 서체나 이미지 CDN 요청은 없습니다. 미확정 캐릭터 시안은 저장소 루트의 `design/characters/`에 있고 개발 모드에서만 `/character-concepts` 경로로 확인할 수 있습니다. 이전 정적 샘플은 `archive/static-prototype/`에 보관합니다.
 
 ## 동작하는 범위
 
-- 별명, 성별(여성·남성·다른 성별·밝히지 않음), 양력/한국 음력, 윤달, 출생시간 또는 시간 모름, 선택적 MBTI 입력
+- 별명, 성별(여성·남성·다른 성별·밝히지 않음), 양력/한국 음력, 윤달, 출생시간 또는 시간 모름, 사주×MBTI 상품의 필수 유형 선택
 - 한국 음력→양력 변환, 절기 기준 년주·월주, 일주·시주 계산
 - 확인된 원국의 표면 오행 개수, 십성·지장간·월지 계절·육합/충에서 선택한 근거를 사용하는 관계 해설 초안
 - 선택한 관심 장면을 도입 질문·상세 상황·이번 주 실천에 반영, 각 장의 근거 펼쳐보기
@@ -67,7 +67,7 @@ CSS는 의미 있는 일반 클래스명을 씁니다. 기본 화면은 모바�
 
 현재 상세 해설은 **검수용 규칙 기반 초안**입니다. LLM 호출, PG 결제, 실제 청구, 이메일, DB, 로그인, 광고 추적은 연결하지 않았습니다. 출생정보를 외부 AI에 전송하지 않습니다.
 
-해설은 `relationship-0.2.0`, 계산 특징은 `saju-facts-v1`로 버전을 기록합니다. 각 장은 `chart / mbti / focus` 근거를 구분하며 내부 `audit`에 실제 적용 조건을 남깁니다. 이 기록은 서버 임시 리포트에만 보관하고 무료 API에 전체 상세 규칙이나 유료 문안을 반환하지 않습니다. 규칙 버전이 바뀐 임시 결과는 재생성이 필요합니다. 자동 테스트는 구현의 일관성 검사이며 명리 전문가의 문안 검수나 외부 만세력 교차 검증을 대신하지 않습니다.
+해설은 상품별 `traditional-0.1.0` / `relationship-0.3.0` / `mbti-0.1.0`, 계산 특징은 `saju-facts-v1`로 버전을 기록합니다. 각 장은 `chart / mbti / focus` 근거를 구분하며 내부 `audit`에 실제 적용 조건을 남깁니다. 이 기록은 서버 임시 리포트에만 보관하고 무료 API에 전체 상세 규칙이나 유료 문안을 반환하지 않습니다. 규칙 버전이 바뀐 임시 결과는 재생성이 필요합니다. 자동 테스트는 구현의 일관성 검사이며 명리 전문가의 문안 검수나 외부 만세력 교차 검증을 대신하지 않습니다.
 
 `POST /api/reports`는 무료 부분만 반환합니다. 상세 챕터는 서버에 두고 클라이언트 번들에 포함하지 않습니다. `POST /api/reports/:id/demo-checkout`은 개발 모드에서만 동작하고, production에서는 항상 403입니다. 화면에 예정 가격 12,900원과 실제 체험 청구액 0원을 구분해서 표시합니다. PG 테스트 결제가 아닌 자체 모의 주문입니다.
 
@@ -87,3 +87,7 @@ API 요청은 4KB 제한, 서버 입력 검증, 동출처 검사, no-store 응�
 사용자가 밝힌 일경험드림 종료일은 2026-10-31입니다. 이 날짜가 지났다는 이유만으로 실결제나 사업자등록을 자동 진행하지 않습니다.
 
 라이브러리 출처와 라이선스는 `THIRD_PARTY_NOTICES.md`를 확인하세요.
+
+## 메인과 세 가지 상품
+
+`/`는 상품 선택 메인입니다. `/readings/traditional`, `/readings/love`, `/readings/mbti`에서 각 콘텐츠를 시작합니다. `features/reading/catalog.ts`는 상품 표시와 목차, `features/reading/server/create-report.ts`는 상품별 생성 분기입니다. 공용 리더·임시 저장은 `features/reading`, 개별 해석은 `traditional/relationship/mbti`에 분리했습니다. 입력 `theme` 기본값은 `traditional`입니다. MBTI 상품은 유형 필수이며 다른 상품은 유형을 서버에서 제거합니다. [콘텐츠 구조](../docs/CONTENT_ARCHITECTURE.md)를 참고하세요.

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import {
   deleteStoredReport,
   getStoredReport,
-} from "@/features/relationship/server/report-store";
+} from "@/features/reading/server/report-store";
 import { checkOrigin, json, SESSION_COOKIE } from "@/lib/http";
 export const runtime = "nodejs";
 export async function DELETE(

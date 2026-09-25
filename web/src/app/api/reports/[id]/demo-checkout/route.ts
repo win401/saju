@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { unlockStoredReport } from "@/features/relationship/server/report-store";
+import { unlockStoredReport } from "@/features/reading/server/report-store";
 import { checkOrigin, json, readSmallJson, SESSION_COOKIE } from "@/lib/http";
 export const runtime = "nodejs";
 export async function POST(

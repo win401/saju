@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { GENDERS, RELATIONSHIP_FOCUSES } from "../types/reading";
+import {
+  GENDERS,
+  RELATIONSHIP_FOCUSES,
+  READING_THEMES,
+} from "../types/reading";
 
 export const MBTI_TYPES = [
   "INTJ",
@@ -21,6 +25,7 @@ export const MBTI_TYPES = [
 ] as const;
 export const birthSchema = z
   .object({
+    theme: z.enum(READING_THEMES).default("traditional"),
     nickname: z
       .string()
       .trim()
@@ -46,4 +51,14 @@ export const birthSchema = z
   .refine((v) => v.calendar === "lunar" || !v.leapMonth, {
     message: "윤달은 음력 날짜에서만 선택할 수 있어요.",
     path: ["leapMonth"],
-  });
+  })
+  .refine((v) => v.theme !== "mbti" || v.mbti !== null, {
+    message:
+      "비교할 MBTI 유형을 선택해주세요. 유형을 모르면 정통 사주나 연애 사주를 이용할 수 있어요.",
+    path: ["mbti"],
+  })
+  .transform((v) => ({
+    ...v,
+    mbti: v.theme === "mbti" ? v.mbti : null,
+    focus: v.theme === "love" ? v.focus : null,
+  }));

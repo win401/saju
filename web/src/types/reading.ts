@@ -2,6 +2,8 @@ export const ELEMENTS = ["목", "화", "토", "금", "수"] as const;
 export type Element = (typeof ELEMENTS)[number];
 export const GENDERS = ["female", "male", "other", "undisclosed"] as const;
 export type Gender = (typeof GENDERS)[number];
+export const READING_THEMES = ["traditional", "love", "mbti"] as const;
+export type ReadingTheme = (typeof READING_THEMES)[number];
 export const RELATIONSHIP_FOCUSES = [
   "distance",
   "expression",
@@ -15,6 +17,7 @@ export type Pillar = {
   elements: Element[];
 };
 export type BirthInput = {
+  theme?: ReadingTheme;
   nickname: string;
   gender: Gender | null;
   birthDate: string;
@@ -43,13 +46,21 @@ export type ReadingEvidence = {
   label: string;
   detail: string;
 };
+export type ChapterSection = {
+  title: string;
+  body: string;
+  kind?: "reading" | "scene" | "voice" | "practice";
+};
 export type Chapter = {
   title: string;
   body: string;
+  lead?: string;
+  sections?: ChapterSection[];
   question: string;
   evidence: ReadingEvidence[];
 };
 export type ReadingPreview = {
+  theme: ReadingTheme;
   id: string;
   nickname: string;
   gender: Gender;

@@ -19,8 +19,8 @@ export default function ExplanationBasis({
         이렇게 읽은 이유 <span>{evidence.length}가지 단서</span>
       </summary>
       <p className="evidence-intro">
-        계산으로 확인한 구성과 직접 입력한 정보를 구분해 볼 수 있어요. 관계
-        이야기로 연결한 해석 문안은 검수 중입니다.
+        계산으로 확인한 구성과 직접 입력한 정보를 구분해 볼 수 있어요. 생활의
+        언어로 풀어쓴 해석 문안은 검수 중입니다.
       </p>
       <ul>
         {evidence.map((item) => (
