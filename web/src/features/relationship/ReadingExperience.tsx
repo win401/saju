@@ -4,12 +4,14 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { MBTI_TYPES } from "@/lib/birth-schema";
 import { formatPrice, product } from "./product";
+import ExplanationBasis from "./ExplanationBasis";
 import {
   ELEMENTS,
   type BirthInput,
   type ReadingPreview,
   type FullReading,
   type Gender,
+  type RelationshipFocus,
 } from "@/types/reading";
 
 const genderOptions: { value: Gender; label: string }[] = [
@@ -48,7 +50,6 @@ const storyPaths = [
     chapter: "다를 때 지키는 기준",
   },
 ] as const;
-type StoryPath = (typeof storyPaths)[number]["id"];
 
 const initial: BirthInput = {
   nickname: "",
@@ -70,7 +71,7 @@ export default function ReadingExperience() {
   const [error, setError] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
-  const [storyPath, setStoryPath] = useState<StoryPath | null>(null);
+  const [storyPath, setStoryPath] = useState<RelationshipFocus | null>(null);
   const [activeChapter, setActiveChapter] = useState(0);
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -79,7 +80,9 @@ export default function ReadingExperience() {
   const formSection = useRef<HTMLElement>(null);
   const pathSection = useRef<HTMLElement>(null);
   const chapterHeading = useRef<HTMLHeadingElement>(null);
-  const chosenPath = storyPaths.find((path) => path.id === storyPath);
+  const chosenPath = storyPaths.find(
+    (path) => path.id === (view === "result" ? report?.focus : storyPath),
+  );
 
   useEffect(() => {
     if (checkoutOpen) {
@@ -121,7 +124,7 @@ export default function ReadingExperience() {
       const response = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
+        body: JSON.stringify({ ...input, focus: storyPath }),
       });
       const data = await response.json();
       if (!response.ok)
@@ -488,13 +491,14 @@ export default function ReadingExperience() {
                     <p>
                       한국 표준시(UTC+9), 자정에 날짜가 바뀌는 기준을
                       사용합니다. 출생지별 태양시 보정과 해외 출생은 아직
-                      지원하지 않아요. 원국 계산은 베타이며 해설은 규칙 기반
-                      초안입니다.
+                      지원하지 않아요. 원국 계산은 베타이며, 관계에 연결한 해석
+                      문안은 검수 중입니다.
                     </p>
                     <p>
-                      입력은 이 서버에서 처리되며, 리포트는 최대 1시간 임시
-                      보관합니다. 외부 AI나 광고 서비스로 전송하지 않습니다.
-                      정식 서비스 전환 시 정책을 다시 안내합니다.
+                      출생정보·선택 유형·관심 장면은 이 서버에서 처리되며,
+                      리포트는 최대 1시간 임시 보관합니다. 외부 AI나 광고
+                      서비스로 전송하지 않습니다. 정식 서비스 전환 시 정책을
+                      다시 안내합니다.
                     </p>
                   </details>
                   {error && (
@@ -551,7 +555,7 @@ export default function ReadingExperience() {
                   {genderLabel[report.gender]} · {report.mbti ?? "사주만 보기"}
                 </p>
                 <p className="draft-label">
-                  원국 계산 베타 · 규칙 기반 해설 초안
+                  원국 계산 베타 · 해석 문안 검수 중
                 </p>
               </div>
               {chosenPath && (
@@ -644,6 +648,7 @@ export default function ReadingExperience() {
                   <h3>{report.intro.title}</h3>
                   <p>{report.intro.body}</p>
                   <blockquote>{report.intro.question}</blockquote>
+                  <ExplanationBasis evidence={report.intro.evidence} />
                 </article>
               </section>
               <section className="comparison-card">
@@ -651,6 +656,7 @@ export default function ReadingExperience() {
                 <h2>{report.comparison.title}</h2>
                 <p>{report.comparison.body}</p>
                 <blockquote>{report.comparison.question}</blockquote>
+                <ExplanationBasis evidence={report.comparison.evidence} />
                 <small>
                   유형 설명과 전통 해석을 비교하는 자기성찰 콘텐츠이며,
                   성격·미래를 진단하지 않습니다.
@@ -760,6 +766,9 @@ export default function ReadingExperience() {
                         <blockquote>
                           {full.chapters[activeChapter].question}
                         </blockquote>
+                        <ExplanationBasis
+                          evidence={full.chapters[activeChapter].evidence}
+                        />
                       </div>
                     </article>
                     <div className="chapter-controls">

@@ -97,6 +97,7 @@ describe("validation and editorial personalization", () => {
     { location: "US" },
     { leapMonth: true },
     { extra: "unexpected" },
+    { focus: "not-a-focus" },
   ])("rejects invalid input %j", (patch) =>
     expect(birthSchema.safeParse({ ...base, ...patch }).success).toBe(false),
   );
@@ -119,7 +120,9 @@ describe("validation and editorial personalization", () => {
     expect(a.chapters[1].question).not.toEqual(b.chapters[1].question);
   });
   it("delivers every chapter promised at the paywall", () => {
-    const titles = createReport(base, chart()).chapters.map(({ title }) => title);
+    const titles = createReport(base, chart()).chapters.map(
+      ({ title }) => title,
+    );
     expect(titles).toEqual(
       product.chapters.filter(({ free }) => !free).map(({ title }) => title),
     );

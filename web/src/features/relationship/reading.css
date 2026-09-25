@@ -685,3 +685,55 @@ blockquote {
 .checkout-dialog {
   padding: 23px;
 }
+
+/* 근거는 필요할 때 펼쳐 읽고, 본문의 장면 흐름은 유지한다. */
+.reading-evidence {
+  margin-top: 24px;
+  border-top: 1px solid #cfc9b9;
+  padding-top: 13px;
+}
+.reading-evidence summary {
+  cursor: pointer;
+  color: #765337;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+}
+.reading-evidence summary > span {
+  margin-left: 8px;
+  font-size: 0.69rem;
+  color: #73796d;
+  white-space: nowrap;
+}
+.reading-evidence .evidence-intro {
+  color: #72766a;
+  font-size: 0.76rem;
+  line-height: 1.7;
+  margin: 14px 0;
+}
+.reading-evidence ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 13px;
+}
+.reading-evidence li {
+  padding-left: 12px;
+  border-left: 2px solid #c0ad8e;
+}
+.evidence-kind {
+  display: block;
+  font: 0.68rem var(--font-body);
+  color: #89704e;
+  margin-bottom: 5px;
+}
+.reading-evidence strong {
+  display: block;
+  font: 600 0.8rem var(--font-body);
+  color: #3f5949;
+}
+.reading-evidence li p {
+  font: 0.78rem/1.75 var(--font-body);
+  margin: 5px 0 0;
+  color: #586555;
+}

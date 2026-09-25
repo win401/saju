@@ -42,3 +42,9 @@ it("replaces the previous report for the same session", () => {
   createStoredReport("same", input, chart);
   expect(getStoredReport(a.id, "same")).toBeNull();
 });
+it("requires regeneration after the stored interpretation version changes", () => {
+  const r = createStoredReport("old-rules", input, chart);
+  r.content.audit.version = "obsolete";
+  expect(getStoredReport(r.id, "old-rules")).toBeNull();
+  expect(unlockStoredReport(r.id, "old-rules")).toBeNull();
+});

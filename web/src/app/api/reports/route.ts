@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
       gender: input.gender,
       mbti: input.mbti,
       birthTime: input.birthTime,
+      focus: input.focus,
       chart,
       intro: r.content.intro,
       comparison: r.content.comparison,

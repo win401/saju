@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GENDERS } from "../types/reading";
+import { GENDERS, RELATIONSHIP_FOCUSES } from "../types/reading";
 
 export const MBTI_TYPES = [
   "INTJ",
@@ -40,6 +40,7 @@ export const birthSchema = z
       .nullable(),
     mbti: z.enum(MBTI_TYPES).nullable(),
     location: z.literal("KR"),
+    focus: z.enum(RELATIONSHIP_FOCUSES).nullable().default(null),
   })
   .strict()
   .refine((v) => v.calendar === "lunar" || !v.leapMonth, {

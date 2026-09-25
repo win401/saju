@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { BirthInput, Chart, Chapter } from "../../../types/reading";
 import { createReport } from "./report";
+import { RULESET_VERSION } from "./interpretation";
 
 type StoredReport = {
   id: string;
@@ -47,6 +48,10 @@ export function createStoredReport(
 export function getStoredReport(id: string, owner: string | undefined) {
   purge();
   const r = reports.get(id);
+  if (r && r.content.audit?.version !== RULESET_VERSION) {
+    reports.delete(id);
+    return null;
+  }
   return r && r.owner === owner ? r : null;
 }
 export function deleteStoredReport(id: string, owner: string | undefined) {

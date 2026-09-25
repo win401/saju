@@ -3,93 +3,59 @@ import type {
   Chart,
   Chapter,
   Element,
+  ReadingEvidence,
+  RelationshipFocus,
 } from "../../../types/reading";
+import {
+  buildRelationshipPlan,
+  RULE_CATALOG,
+  RULESET_VERSION,
+  type Finding,
+} from "./interpretation";
 
-// Editorial prompts for reflection, not personality or relationship predictions.
-// The day element supplies a metaphor; the user's lived experience remains the test.
-type RelationshipLens = {
-  image: string;
-  theme: string;
-  scene: string;
-  pace: string;
-  expression: string;
-  friction: string;
-  repair: string;
-  phrase: string;
-  experiment: string;
-  openingQuestion: string;
+const IMAGES: Record<Element, string> = {
+  목: "자라는 나무",
+  화: "빛을 나누는 불",
+  토: "받쳐주는 땅",
+  금: "다듬어진 금속",
+  수: "흐르는 물",
 };
-
-const lenses: Record<Element, RelationshipLens> = {
-  목: {
-    image: "자라는 나무",
-    theme: "함께 자라는 관계",
-    scene: "함께 해보고 싶은 일을 떠올렸을 때, 상대에게 먼저 제안하는 장면",
-    pace: "새로운 계획이 반가워도 두 사람이 같은 속도로 움직이는지는 따로 확인해야 해요.",
-    expression:
-      "하고 싶은 일을 말할 때는 그 계획이 나에게 왜 소중한지도 덧붙여보세요.",
-    friction:
-      "계획이 미뤄졌을 때 관심이 식었다고 느꼈는지, 단지 일정이 달랐는지 구분해보세요.",
-    repair: "다음에 함께할 수 있는 작은 일 하나를 다시 정해보세요.",
-    phrase: "나는 같이 해보고 싶은 게 있어. 너는 어떤 속도가 편해?",
-    experiment: "함께할 일을 하나 제안하고, 상대가 원하는 시점도 들어보세요.",
-    openingQuestion: "내가 원하는 변화와 상대가 편안한 속도는 얼마나 다른가요?",
+const CONCERNS: Record<
+  RelationshipFocus,
+  {
+    title: string;
+    scene: string;
+    action: string;
+    phrase: string;
+    question: string;
+  }
+> = {
+  distance: {
+    title: "가까워지는 속도",
+    scene: "다가가고 싶지만 한 발 늦추게 되는 순간",
+    action:
+      "연락·만남·혼자 있는 시간 중 하나만 골라 내가 편한 간격을 적어보세요. 다음 대화에서 그 간격을 제안하고 상대가 편한 간격도 물어봐요.",
+    phrase: "나는 이 정도 속도면 편안해. 너는 어떤 간격이 좋아?",
+    question:
+      "내가 기다리고 싶은 것과 지금 먼저 제안할 수 있는 것은 각각 무엇인가요?",
   },
-  화: {
-    image: "빛을 나누는 불",
-    theme: "표현을 주고받는 관계",
-    scene: "반가운 마음을 표현했는데 상대의 반응이 예상보다 조용했던 장면",
-    pace: "표현의 크기와 관계의 깊이를 같은 것으로 보지 않아도 돼요.",
-    expression:
-      "내가 건넨 말보다 상대가 편안하게 받는 방식이 무엇인지 물어볼 수 있어요.",
-    friction:
-      "반응이 늦거나 작을 때 마음이 없는 것으로 단정하기 전에 상황을 확인해보세요.",
-    repair: "서로 고마움을 느꼈던 행동을 하나씩 짚어보세요.",
-    phrase: "나는 이렇게 표현할 때 마음이 전해진다고 느껴. 너는 어때?",
-    experiment:
-      "최근 고마웠던 행동 하나를 구체적으로 말하고, 상대의 표현 방식도 물어보세요.",
-    openingQuestion: "내가 표현한 마음과 상대가 받아들인 마음은 같았을까요?",
+  expression: {
+    title: "마음을 전하는 말",
+    scene: "마음은 있는데 적절한 말이 떠오르지 않는 순간",
+    action:
+      "미뤄둔 말 하나를 ‘실제로 있었던 일 → 내가 느낀 마음 → 구체적인 부탁’ 세 문장으로 적어보세요. 상대에게 말한 뒤 어떤 부분이 잘 전해졌는지 확인해요.",
+    phrase:
+      "그 일이 있었을 때 나는 이런 마음이었어. 다음에는 이렇게 해줄 수 있을까?",
+    question:
+      "상대가 알아주길 기다리는 마음 중 직접 말할 수 있는 한 문장은 무엇인가요?",
   },
-  토: {
-    image: "받쳐주는 땅",
-    theme: "안정감을 쌓는 관계",
-    scene: "약속을 지키려 애쓰다가 정작 내 일정은 뒤로 밀린 장면",
-    pace: "꾸준함이 편안함을 만들지만, 나의 여유도 관계의 일부예요.",
-    expression: "괜찮다고 말하기 전에 실제로 가능한 범위를 먼저 확인해보세요.",
-    friction:
-      "배려가 반복해서 부담이 된다면 누가 더 잘못했는지보다 약속의 크기를 살펴보세요.",
-    repair: "지킬 수 있는 약속과 조정이 필요한 약속을 나눠 말해보세요.",
-    phrase: "그 약속은 지키고 싶어. 다만 이 시간은 내게 필요해.",
-    experiment:
-      "이번 주에 지킬 수 있는 약속 하나와 조정하고 싶은 약속 하나를 적어보세요.",
-    openingQuestion: "안정감을 만들면서도 내 시간을 지키고 있나요?",
-  },
-  금: {
-    image: "다듬어진 금속",
-    theme: "서로의 기준을 존중하는 관계",
-    scene: "서로 다른 기준 때문에 작은 약속 하나가 어긋났던 장면",
-    pace: "기준을 분명히 하는 일과 상대의 다른 방식을 듣는 일은 함께할 수 있어요.",
-    expression: "내가 중요하게 여기는 기준을 비난이 아닌 설명으로 전해보세요.",
-    friction:
-      "한 번의 실수와 반복해서 지켜지지 않는 약속을 같은 문제로 묶지 마세요.",
-    repair: "꼭 필요한 기준 하나와 조정할 수 있는 기준 하나를 구분해보세요.",
-    phrase: "이 약속은 내게 중요해. 서로 지킬 수 있는 방식으로 정해볼까?",
-    experiment:
-      "중요한 기준 하나를 말하고, 상대에게도 양보하기 어려운 기준을 물어보세요.",
-    openingQuestion: "내 기준을 말할 때 상대의 기준도 들을 자리를 남기나요?",
-  },
-  수: {
-    image: "흐르는 물",
-    theme: "생각을 나누는 관계",
-    scene: "생각을 정리하느라 답을 미뤘는데 상대는 이유를 몰랐던 장면",
-    pace: "혼자 생각할 시간이 필요하다면 다시 이야기할 시점도 함께 전할 수 있어요.",
-    expression: "마음이 정리되지 않았다는 사실 자체를 짧게 말해도 괜찮아요.",
-    friction:
-      "침묵이 나에게는 정리의 시간이지만 상대에게는 거리감으로 느껴질 수 있는지 확인해보세요.",
-    repair: "지금 답할 수 있는 것과 더 생각할 것을 나눠 이야기해보세요.",
-    phrase: "조금 생각할 시간이 필요해. 오늘 저녁에 다시 이야기할게.",
-    experiment: "생각할 시간이 필요한 순간에 돌아올 시간을 함께 알려보세요.",
-    openingQuestion: "생각할 시간을 지키면서도 마음의 거리를 설명하고 있나요?",
+  boundary: {
+    title: "나를 지키는 기준",
+    scene: "상대에게 맞추다가 내 마음을 놓치는 순간",
+    action:
+      "최근 부담을 느낀 부탁 하나를 골라 ‘할 수 있는 범위’와 ‘어려운 범위’를 나눠 적어보세요. 거절의 이유를 길게 증명하기보다 가능한 대안을 한 가지 말해봐요.",
+    phrase: "그 부분은 지금 어렵지만, 여기까지는 함께할 수 있어.",
+    question: "관계를 이어가면서도 내가 지키고 싶은 한 가지는 무엇인가요?",
   },
 };
 
@@ -98,12 +64,12 @@ function mbtiPreferences(mbti: string | null) {
   return {
     energy:
       mbti[0] === "E"
-        ? "대화 속에서 생각이 정리되는 편인지"
+        ? "대화하면서 생각을 정리하는 편인지"
         : "혼자 돌아본 뒤 이야기하는 편인지",
     perception:
       mbti[1] === "N"
         ? "말 뒤의 의미와 가능성을 먼저 보는 편인지"
-        : "그때 있었던 구체적인 일을 먼저 보는 편인지",
+        : "실제로 있었던 구체적인 일을 먼저 보는 편인지",
     decision:
       mbti[2] === "F"
         ? "감정에 미친 영향을 먼저 확인하고 싶은지"
@@ -115,60 +81,195 @@ function mbtiPreferences(mbti: string | null) {
   };
 }
 
-export function createReport(
-  input: BirthInput,
-  chart: Chart,
-): { intro: Chapter; comparison: Chapter; chapters: Chapter[] } {
-  const lens = lenses[chart.dayElement];
-  const mbti = input.mbti;
-  const preference = mbtiPreferences(mbti);
-
-  return {
-    intro: {
-      title: `${chart.pillars.day.korean}일주, ${lens.image}의 이미지`,
-      body: `입력한 날짜의 일주는 ${chart.pillars.day.hanja}(${chart.pillars.day.korean})이고, 일간의 오행은 ${chart.dayElement}입니다. 전통 명리에서 이 오행을 '${lens.image}'에 비유해볼 수 있어요.\n\n오늘은 그 이미지를 ${lens.theme}라는 질문의 출발점으로 삼습니다. 예를 들면 ${lens.scene}을 떠올려보세요. 이런 경험이 없다면 나에게 맞는 다른 장면으로 바꿔 읽어도 좋아요. 오행 하나로 성격이나 연애의 결과를 정할 수는 없습니다.`,
-      question: lens.openingQuestion,
-    },
-    comparison: preference
-      ? {
-          title: `${mbti}와 ${chart.pillars.day.korean}일주를 나란히 읽으면`,
-          body: `사주의 '${lens.image}'는 관계를 돌아보기 위한 상징입니다. 내가 선택한 ${mbti}는 ${preference.energy}, ${preference.perception}, ${preference.decision}, ${preference.structure} 같은 선호를 확인하는 언어로 써볼 수 있어요.\n\n둘을 더해 새로운 성격 점수를 만들지는 않습니다. '${lens.scene}'에서 실제 나는 어떻게 반응했는지 떠올려보세요. 유형의 설명과 다르게 행동했다면 그 경험이 더 중요한 단서예요.`,
-          question:
-            "이 장면에서 내가 실제로 한 행동은 사주 비유와 MBTI 설명 중 어디에 가깝고, 어디가 달랐나요?",
-        }
-      : {
-          title: "유형을 몰라도, 나의 이야기는 계속됩니다",
-          body: `MBTI를 선택하지 않아 유형 비교는 생략했어요. ${chart.pillars.day.korean}일주의 '${lens.image}'라는 비유와 '${lens.scene}'을 나의 실제 경험에 비춰보세요. 생년월일로 MBTI를 추측하거나 새로운 유형을 부여하지 않습니다.`,
-          question: "최근 관계에서 나는 실제로 어떤 선택을 했나요?",
+export function createReport(input: BirthInput, chart: Chart) {
+  const plan = buildRelationshipPlan(chart);
+  const { facts, pace, expression, boundary } = plan;
+  const concern = input.focus ? CONCERNS[input.focus] : null;
+  const preference = mbtiPreferences(input.mbti);
+  const mbtiEvidence: ReadingEvidence[] = input.mbti
+    ? [
+        {
+          kind: "mbti",
+          label: "직접 선택한 성격 유형",
+          detail: `${input.mbti}를 사용자가 입력했어요. 출생정보로 유형을 추정하거나 사주와 합산한 점수를 만들지 않았어요.`,
         },
-    chapters: [
-      {
-        title: "가까워지는 나만의 속도",
-        body: `무료 요약에서 떠올린 장면으로 돌아가볼까요. 나는 언제 마음이 가까워졌고, 상대에게는 선택할 시간이 얼마나 있었나요? ${lens.pace}\n\n${preference ? `선택한 MBTI를 참고한다면, ${preference.energy}와 ${preference.structure}를 각각 확인해볼 수 있어요.` : "유형을 몰라도 괜찮아요. 만나기 전과 후에 혼자 쉴 시간이 얼마나 필요한지, 약속을 얼마나 미리 정하고 싶은지 살펴보세요."} 상대의 선호는 입력 정보로 알 수 없으니 직접 물어보세요.`,
-        question:
-          "다음 만남에서 연락 간격, 만나는 시간, 혼자 있는 시간 중 무엇을 먼저 조율하고 싶나요?",
-      },
-      {
-        title: "마음을 전하는 방법",
-        body: `${lens.expression}\n\n${preference ? `대화가 어긋났다면 ${preference.perception}, ${preference.decision}를 돌아보세요. 유형은 내가 선호할 수 있는 출발점일 뿐, 그날의 실제 필요를 대신하지 않아요.` : "대화가 어긋났다면 서로 기억하는 사실, 그때 느낀 감정, 지금 원하는 도움을 나눠 말해보세요."}\n\n바로 쓸 수 있는 문장: “${lens.phrase}”`,
-        question:
-          mbti?.[2] === "F"
-            ? "내가 느낀 감정과 상대에게 바라는 구체적인 행동을 각각 한 문장으로 말할 수 있나요?"
-            : mbti?.[2] === "T"
-              ? "해결책을 이야기하기 전에 서로 어떤 마음이었는지도 물어볼 수 있나요?"
-              : "내가 듣고 싶은 말과 상대에게 전하고 싶은 요청을 각각 한 문장으로 말할 수 있나요?",
-      },
-      {
-        title: "다를 때 지키는 기준",
-        body: `관계가 불편했던 장면을 떠올려보세요. ${lens.friction}\n\n상대의 속마음이나 미래를 ${mbti ? "사주와 MBTI" : "사주"}로 알아낼 수는 없어요. 확인할 수 있는 것은 실제로 있었던 행동과 두 사람이 나눈 말입니다. ${lens.repair}`,
-        question:
-          "이 상황에서 내가 꼭 지키고 싶은 것 하나와 조정할 수 있는 것 하나는 무엇인가요?",
-      },
-      {
-        title: "이번 주의 관계 실험",
-        body: `이번 주에는 한 번에 모든 것을 바꾸려 하지 말고 행동 하나만 골라보세요. ${lens.experiment}\n\n대화를 나눈 뒤에는 세 가지만 적어보세요. 내가 예상한 반응, 실제로 들은 말, 다음에 다르게 해볼 점. 예상과 실제가 다르면 ${mbti ? "사주 비유나 MBTI 설명" : "사주 비유"}보다 그 경험을 우선하세요.`,
-        question: "언제, 누구에게, 어떤 한 문장을 먼저 건네볼까요?",
-      },
+      ]
+    : [];
+  const focusEvidence: ReadingEvidence[] = concern
+    ? [
+        {
+          kind: "focus",
+          label: "이번 이야기의 관심 장면",
+          detail: `사용자가 ‘${concern.title}’을 선택했어요. 사주에서 알아낸 고민이 아니라 직접 고른 관심사예요.`,
+        },
+      ]
+    : [];
+  const dayEvidence: ReadingEvidence = {
+    kind: "chart",
+    label: "나를 읽는 기준: 일간",
+    detail: `일주 ${chart.pillars.day.hanja}(${chart.pillars.day.korean}), 일간 ${facts.dayMaster.hanja}(${facts.dayMaster.korean})는 ${facts.dayMaster.polarity}·${facts.dayMaster.element}입니다.`,
+  };
+  const scope = facts.missingPillars.length
+    ? "확인되지 않은 기둥은 이번 해설에서 제외했어요. "
+    : "";
+  const scene = concern
+    ? `이번에는 ‘${concern.scene}’을 떠올리며 읽어봐요.`
+    : "최근 관계에서 기억에 남는 장면 하나를 떠올리며 읽어봐요.";
+
+  const intro: Chapter = {
+    title: `${chart.pillars.day.korean}일주, ${IMAGES[chart.dayElement]}의 이미지`,
+    body: `일간 ${facts.dayMaster.hanja}(${facts.dayMaster.korean})는 ${facts.dayMaster.polarity}의 ${chart.dayElement}이고, 일주는 ${chart.pillars.day.hanja}(${chart.pillars.day.korean})예요. ‘${IMAGES[chart.dayElement]}’라는 첫 이미지에 다른 글자들의 관계를 함께 놓아볼게요.\n\n이번 구성에서는 ‘${pace.title}’과 ‘${expression.title}’을 나란히 읽습니다. ${scene}\n\n${scope}먼저 스스로 확인할 질문은 ‘마음이 가까워지는 때와 내 마음을 표현하기 편한 때가 같은가?’예요. 실제로 편안했던 대화 하나와 어려웠던 대화 하나를 비교해보세요. 그 차이를 기억해두면 다음 장을 자신의 경험에 비춰 읽을 수 있어요.`,
+    question:
+      concern?.question ??
+      "최근 편안했던 관계의 장면과 불편했던 장면에서 내 선택은 어떻게 달랐나요?",
+    evidence: [
+      dayEvidence,
+      pace.evidence[0],
+      ...expression.evidence,
+      ...focusEvidence,
     ],
+  };
+
+  const comparison: Chapter = preference
+    ? {
+        title: `${input.mbti}와 ${chart.pillars.day.korean}일주를 나란히 읽으면`,
+        body: `사주에서는 이번 구성을 ‘${expression.title}’이라는 질문으로 읽었어요. 서로 다른 단서를 한 가지 성격으로 묶기보다, 상황에 따라 어느 쪽을 더 의식하는지 살펴보는 출발점이에요.\n\n직접 선택한 ${input.mbti}에서는 ${preference.energy}, ${preference.perception}를 먼저 확인해볼 수 있어요. 또 ${preference.decision}, ${preference.structure}도 별도의 선호로 살펴봐요.\n\n사주의 해석과 유형 설명이 닮았다면 같은 행동을 말하는지 확인하고, 다르다면 상황에 따라 달라지는 내 모습을 찾아봐요. 두 설명을 더해 새로운 성격 점수나 정답을 만들지는 않아요.`,
+        question:
+          "같은 사람을 대할 때도 편안한 날과 긴장한 날의 표현 방식은 어떻게 달라지나요?",
+        evidence: [...expression.evidence, ...mbtiEvidence],
+      }
+    : {
+        title: "유형을 몰라도, 나의 이야기는 계속됩니다",
+        body: `유형을 선택하지 않아 유형 비교는 생략했어요. 이번 사주에서 고른 질문은 ‘${expression.title}’이에요. 내가 말을 꺼내기 편했던 순간과 상대의 반응을 기다렸던 순간을 하나씩 떠올려봐요. 같은 관계에서도 상황에 따라 내 선택이 달라졌는지 비교할 수 있어요.\n\n이 질문과 최근 내 행동을 나란히 놓아보세요. 닮은 부분뿐 아니라 달랐던 부분도 기록하면 실제로 나에게 필요한 질문이 더 분명해져요. 생년월일로 유형을 추측하지 않습니다.`,
+        question:
+          "이 장면에서 내가 실제로 한 행동과 설명이 다른 부분은 무엇인가요?",
+        evidence: expression.evidence,
+      };
+
+  const experimentSource =
+    input.focus === "expression"
+      ? expression
+      : input.focus === "boundary"
+        ? boundary
+        : pace;
+  const chapters: Chapter[] = [
+    {
+      title: "가까워지는 나만의 속도",
+      body: `${pace.body}\n\n${preference ? `선택한 유형을 참고한다면 ${preference.energy}, ${preference.structure}를 따로 살펴봐요. 마음의 크기와 편한 연락 간격이 꼭 같지는 않을 수 있어요.` : "상대를 만나기 전과 후에 혼자 쉬고 싶은 시간이 얼마나 다른지 돌아봐요. 나와 상대에게 편한 간격이 같은지는 직접 확인해야 해요."}${input.focus === "distance" ? `\n\n${scene} 한 발 늦추고 싶은 이유가 더 알아볼 시간이 필요해서인지, 내 일정에 여유가 없어서인지 나눠봐요.` : ""}`,
+      question:
+        "연락의 빈도, 만나는 시간, 혼자 쉬는 시간 중 하나만 조율한다면 무엇부터 말하고 싶나요?",
+      evidence: [
+        ...pace.evidence,
+        ...mbtiEvidence,
+        ...(input.focus === "distance" ? focusEvidence : []),
+      ],
+    },
+    {
+      title: "마음을 전하는 방법",
+      body: `${expression.body}\n\n${preference ? `대화가 어긋났을 때는 ${preference.perception}, ${preference.decision}를 나눠 살펴봐요. 내가 원하는 도움을 상대도 같은 것으로 이해했는지가 이번 대화의 확인점이에요.` : "대화가 어긋났을 때는 서로 기억하는 사실, 느낀 감정, 원하는 도움을 나눠 말해봐요. 같은 장면을 다르게 기억할 수도 있으니 결론보다 각자의 설명을 먼저 들어봐요."}\n\n이렇게 말을 시작해볼 수 있어요. “${expression.phrase}”${input.focus === "expression" ? `\n\n${scene} 모두 설명하려고 기다리기보다, 지금 전하고 싶은 마음 하나만 골라도 괜찮아요.` : ""}`,
+      question:
+        input.mbti?.[2] === "F"
+          ? "내가 느낀 감정과 상대에게 바라는 행동을 각각 한 문장으로 말할 수 있나요?"
+          : input.mbti?.[2] === "T"
+            ? "해결책을 이야기하기 전에 서로 어떤 마음이었는지도 물어볼 수 있나요?"
+            : "내가 듣고 싶은 말과 상대에게 전하고 싶은 요청을 각각 한 문장으로 말할 수 있나요?",
+      evidence: [
+        ...expression.evidence,
+        ...mbtiEvidence,
+        ...(input.focus === "expression" ? focusEvidence : []),
+      ],
+    },
+    {
+      title: "다를 때 지키는 기준",
+      body: `${boundary.body}\n\n불편했던 대화를 하나 고르고 ‘실제로 있었던 행동 → 내가 기대했던 것 → 다음에 바라는 것’으로 나눠 적어봐요. 상대의 속마음은 이 입력으로 알 수 없으니, 짐작한 의도와 확인한 사실도 나눠두세요.${input.focus === "boundary" ? `\n\n${scene} 관계를 계속하고 싶은 마음과 어려운 부탁을 거절하는 마음이 동시에 있어도 괜찮아요.` : ""}`,
+      question:
+        "이 관계에서 함께 정하고 싶은 약속 하나와 각자 선택해도 되는 것 하나는 무엇인가요?",
+      evidence: [
+        ...boundary.evidence,
+        ...(input.focus === "boundary" ? focusEvidence : []),
+      ],
+    },
+    {
+      title: "이번 주의 관계 실험",
+      body: `앞에서 읽은 ‘${experimentSource.title}’을 이번 주의 작은 행동으로 옮겨봐요.${concern ? ` 직접 고른 ‘${concern.title}’ 장면에서 시작합니다.` : " 지금 떠오르는 장면에 맞지 않으면 더 가까운 상황으로 바꿔도 괜찮아요."}\n\n${concern?.action ?? experimentSource.action}\n\n시작할 때 쓸 한 문장: “${concern?.phrase ?? experimentSource.phrase}”\n\n대화 뒤에는 예상한 반응, 실제로 들은 말, 다음에 바꾸고 싶은 점을 하나씩 기록해봐요. 설명과 내 경험이 다르면 그 차이를 다음 선택의 단서로 삼아요.`,
+      question:
+        concern?.question ?? "언제, 누구에게, 어떤 한 문장을 먼저 건네볼까요?",
+      evidence: [...experimentSource.evidence, ...focusEvidence],
+    },
+  ];
+
+  const record = (finding: Finding, section: string) => ({
+    id: finding.ruleId,
+    section,
+    condition: `${RULE_CATALOG[finding.ruleId]} — ${finding.condition}`,
+    evidence: finding.evidence,
+  });
+  const focusRecord = (section: string) =>
+    concern
+      ? [
+          {
+            id: "context.focus",
+            section,
+            condition: `${RULE_CATALOG["context.focus"]} — ${input.focus}: ${concern.title}`,
+            evidence: focusEvidence,
+          },
+        ]
+      : [];
+  const mbtiRecord = (section: string, axes: string) =>
+    preference
+      ? [
+          {
+            id: "context.mbti",
+            section,
+            condition: `${input.mbti}의 ${axes} 선호; 사주 사실과 독립된 자기보고 입력`,
+            evidence: mbtiEvidence,
+          },
+        ]
+      : [];
+  const contextId = concern ? "context.focus" : "context.default";
+  return {
+    intro,
+    comparison,
+    chapters,
+    // Stored on the server for reproducibility and future reviewed narrative input.
+    // The preview route deliberately returns only the two public chapters.
+    audit: {
+      version: RULESET_VERSION,
+      status: "editorial-draft" as const,
+      facts,
+      rules: [
+        {
+          id: "intro.day",
+          section: "intro",
+          condition: RULE_CATALOG["intro.day"],
+          evidence: [dayEvidence],
+        },
+        record(pace, "intro"),
+        record(expression, "intro"),
+        ...focusRecord("intro"),
+        record(expression, "comparison"),
+        {
+          id: preference ? "comparison.mbti" : "comparison.no-mbti",
+          section: "comparison",
+          condition: preference ? `사용자가 ${input.mbti} 입력` : "MBTI 미입력",
+          evidence: preference ? mbtiEvidence : expression.evidence,
+        },
+        record(pace, "pace"),
+        ...mbtiRecord("pace", "E/I·J/P"),
+        ...(input.focus === "distance" ? focusRecord("pace") : []),
+        record(expression, "expression"),
+        ...mbtiRecord("expression", "S/N·T/F"),
+        ...(input.focus === "expression" ? focusRecord("expression") : []),
+        record(boundary, "boundary"),
+        ...(input.focus === "boundary" ? focusRecord("boundary") : []),
+        record(experimentSource, "experiment"),
+        {
+          id: contextId,
+          section: "experiment",
+          condition: `${RULE_CATALOG[contextId]} — ${concern?.title ?? experimentSource.title}`,
+          evidence: concern ? focusEvidence : experimentSource.evidence,
+        },
+      ],
+    },
   };
 }

@@ -43,6 +43,13 @@ test("input, preview, cancel, retry, full report and reset", async ({
   await expect(page.locator(".is-chosen-chapter")).toContainText(
     "마음을 전하는 방법",
   );
+  await page.locator(".reading-prose .reading-evidence summary").click();
+  await expect(page.locator(".reading-prose .reading-evidence")).toContainText(
+    "이번 이야기의 관심 장면",
+  );
+  await expect(
+    page.locator(".reading-prose .evidence-kind").first(),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "INFP와 갑자일주를 나란히 읽으면" }),
   ).toBeVisible();
@@ -65,6 +72,9 @@ test("input, preview, cancel, retry, full report and reset", async ({
   await expect(page.locator(".chapter-reader h3")).toHaveText(
     "마음을 전하는 방법",
   );
+  await expect(page.locator(".chapter-reader")).toContainText(
+    "마음은 있는데 적절한 말이 떠오르지 않는 순간",
+  );
   await page.getByRole("button", { name: "다음 장" }).click();
   await expect(page.locator(".chapter-reader h3")).toHaveText(
     "다를 때 지키는 기준",
@@ -79,6 +89,13 @@ test("input, preview, cancel, retry, full report and reset", async ({
   await expect(
     page.getByRole("button", { name: "입력 정보 지우고 다시 시작" }),
   ).toBeVisible();
+  await expect(page.locator(".chapter-reader")).toContainText(
+    "실제로 있었던 일 → 내가 느낀 마음 → 구체적인 부탁",
+  );
+  await page.locator(".chapter-reader .reading-evidence summary").click();
+  await expect(page.locator(".chapter-reader .reading-evidence")).toContainText(
+    "사용자가 ‘마음을 전하는 말’을 선택",
+  );
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-report.png`,
     fullPage: true,
@@ -129,10 +146,17 @@ test("API preview omits paid chapters; separate sessions cannot unlock", async (
   request,
   playwright,
 }) => {
-  const r = await request.post("/api/reports", { data: input });
+  const r = await request.post("/api/reports", {
+    data: { ...input, focus: "boundary" },
+  });
   expect(r.status()).toBe(200);
   const preview = await r.json();
   expect(preview.chapters).toBeUndefined();
+  expect(preview.audit).toBeUndefined();
+  expect(preview.focus).toBe("boundary");
+  expect(preview.intro.evidence).toEqual(
+    expect.arrayContaining([expect.objectContaining({ kind: "focus" })]),
+  );
   const stranger = await playwright.request.newContext({
     baseURL: "http://127.0.0.1:4173",
   });
