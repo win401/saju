@@ -1,14 +1,14 @@
 /* 가장 먼저 수정할 파일: 브랜드 색상, 글꼴, 여백, 모서리 */
 :root {
   color-scheme: light;
-  --color-bg: #f5f4ef;
-  --color-surface: #fffefa;
-  --color-ink: #29352f;
-  --color-muted: #6c736b;
-  --color-line: #dcdfd5;
-  --color-brand: #303f34;
-  --color-accent: #a34531;
-  --color-soft: #eaf0e5;
+  --color-bg: #f6f1e8;
+  --color-surface: #fffaf1;
+  --color-ink: #253c34;
+  --color-muted: #6f776e;
+  --color-line: #ded8ca;
+  --color-brand: #264b3e;
+  --color-accent: #ad6844;
+  --color-soft: #e9eee2;
   --color-danger: #a32e27;
   --font-body:
     -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",

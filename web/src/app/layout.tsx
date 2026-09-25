@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/tokens.css";
 import "@/styles/globals.css";
 import "@/features/relationship/reading.css";
+import "@/features/relationship/story.css";
 export const metadata: Metadata = {
   title: "결 — 나의 관계를 읽는 사주",
   description:

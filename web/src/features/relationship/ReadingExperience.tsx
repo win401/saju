@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import Image from "next/image";
 import { MBTI_TYPES } from "@/lib/birth-schema";
 import { formatPrice, product } from "./product";
 import {
@@ -20,6 +21,34 @@ const genderOptions: { value: Gender; label: string }[] = [
 const genderLabel = Object.fromEntries(
   genderOptions.map(({ value, label }) => [value, label]),
 ) as Record<Gender, string>;
+
+const storyPaths = [
+  {
+    id: "distance",
+    number: "01",
+    title: "가까워지는 속도",
+    scene: "다가가고 싶은데, 한 발 늦추게 될 때",
+    reply: "마음의 속도가 다른 날부터 펼쳐볼게요.",
+    chapter: "가까워지는 나만의 속도",
+  },
+  {
+    id: "expression",
+    number: "02",
+    title: "마음을 전하는 말",
+    scene: "분명 마음은 있는데, 말이 잘 나오지 않을 때",
+    reply: "말하지 못한 마음의 장면부터 볼게요.",
+    chapter: "마음을 전하는 방법",
+  },
+  {
+    id: "boundary",
+    number: "03",
+    title: "나를 지키는 기준",
+    scene: "상대에게 맞추다 내 마음을 놓칠 때",
+    reply: "나를 지키는 기준부터 짚어볼게요.",
+    chapter: "다를 때 지키는 기준",
+  },
+] as const;
+type StoryPath = (typeof storyPaths)[number]["id"];
 
 const initial: BirthInput = {
   nickname: "",
@@ -41,10 +70,16 @@ export default function ReadingExperience() {
   const [error, setError] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [storyPath, setStoryPath] = useState<StoryPath | null>(null);
+  const [activeChapter, setActiveChapter] = useState(0);
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const fullHeading = useRef<HTMLHeadingElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formSection = useRef<HTMLElement>(null);
+  const pathSection = useRef<HTMLElement>(null);
+  const chapterHeading = useRef<HTMLHeadingElement>(null);
+  const chosenPath = storyPaths.find((path) => path.id === storyPath);
 
   useEffect(() => {
     if (checkoutOpen) {
@@ -119,6 +154,10 @@ export default function ReadingExperience() {
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.error || "체험 주문을 완료하지 못했어요.");
+      const selectedChapter = data.chapters.findIndex(
+        (chapter: { title: string }) => chapter.title === chosenPath?.chapter,
+      );
+      setActiveChapter(Math.max(0, selectedChapter));
       setCheckoutOpen(false);
       setFull(data);
     } catch (err) {
@@ -137,10 +176,23 @@ export default function ReadingExperience() {
     setReport(null);
     setFull(null);
     setInput(initial);
+    setStoryPath(null);
+    setActiveChapter(0);
     setView("input");
     setError("");
     window.scrollTo(0, 0);
     setTimeout(() => inputRef.current?.focus(), 0);
+  }
+  function changeChapter(index: number) {
+    setActiveChapter(index);
+    window.setTimeout(() => chapterHeading.current?.focus(), 0);
+  }
+  function scrollTo(section: HTMLElement | null) {
+    section?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
   }
 
   return (
@@ -153,6 +205,50 @@ export default function ReadingExperience() {
         <span className="dev-badge">출시 전 체험</span>
       </header>
       <main>
+        {view === "input" && (
+          <section className="story-hero" aria-labelledby="story-title">
+            <Image
+              className="story-hero-image"
+              src="/images/yeoul-thread-room.png"
+              alt="여울이 세 갈래로 이어지는 빛의 실을 건네는 서재"
+              fill
+              sizes="(max-width: 480px) 100vw, 480px"
+              priority
+            />
+            <div className="story-sparks" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="story-topline">
+              <span>결 · 첫 번째 이야기</span>
+              <span>SCENE 01 / 03</span>
+            </div>
+            <div className="story-hero-content">
+              <span className="story-speaker">여울이 건네는 첫 장</span>
+              <h1 id="story-title">
+                내 마음에도
+                <br />
+                <em>결이 있다.</em>
+              </h1>
+              <p>
+                사주가 말하는 나와, 내가 아는 나.
+                <br />그 사이에서 관계의 실을 따라가요.
+              </p>
+              <button
+                className="story-enter"
+                type="button"
+                onClick={() => scrollTo(pathSection.current)}
+              >
+                나의 이야기 시작하기 <span aria-hidden="true">↘</span>
+              </button>
+            </div>
+            <span className="story-scroll-hint" aria-hidden="true">
+              SCROLL TO BEGIN ↓
+            </span>
+          </section>
+        )}
         <nav className="journey" aria-label="체험 단계">
           <span aria-current={view === "input" ? "step" : undefined}>
             01 나의 시작
@@ -166,52 +262,87 @@ export default function ReadingExperience() {
         </nav>
         {view === "input" ? (
           <section className="intro-grid">
-            <div className="intro-copy">
-              <p className="eyebrow">A STORY ONLY YOU CAN TELL</p>
-              <h1>
-                같은 유형,
-                <br />
-                다른 연애.
-                <br />
-                <em>당신만의 결.</em>
-              </h1>
-              <p className="intro-lead">
-                사주와 내가 아는 성격을 나란히 놓고,
-                <br />
-                관계 속 나의 모습을 읽어보세요.
-              </p>
-              <div className="narrator-note">
-                <span className="narrator-sign" aria-hidden="true">
-                  結
-                </span>
-                <div>
-                  <p>
-                    “당신이 알고 있는 나와,
-                    <br />
-                    사주 속 이야기는 얼마나 닮았을까요?”
-                  </p>
-                  <small>{product.narrator.name}</small>
-                </div>
+            <section
+              className="path-stage"
+              ref={pathSection}
+              aria-labelledby="path-heading"
+            >
+              <div className="stage-index">
+                <span>THE FIRST THREAD</span>
+                <span>01 — 03</span>
               </div>
-              <div className="chapter-teaser">
-                <span>이번 이야기</span>
-                <strong>나의 관계를 읽는 사주</strong>
-                <p>기본 사주 · 성격 유형 비교 · 관계를 위한 질문</p>
-              </div>
-              <p className="scope-note">
-                무료 요약을 먼저 읽고, 상세 리포트를 선택하세요.
+              <p className="stage-kicker">여울의 질문</p>
+              <h2 id="path-heading">
+                지금, 어느 장면이
                 <br />
-                현재는 모든 단계를 요금 없이 체험할 수 있어요.
+                가장 마음에 남나요?
+              </h2>
+              <p className="path-intro">
+                정답을 고르는 검사가 아니에요. 이번 이야기에서 먼저 읽고 싶은
+                장면을 골라주세요.
               </p>
-            </div>
-            <section className="birth-card" aria-labelledby="birth-heading">
+              <div
+                className="path-list"
+                role="group"
+                aria-label="먼저 읽고 싶은 관계 장면"
+              >
+                {storyPaths.map((path) => (
+                  <button
+                    className={`path-option ${storyPath === path.id ? "is-selected" : ""}`}
+                    type="button"
+                    key={path.id}
+                    aria-pressed={storyPath === path.id}
+                    onClick={() => setStoryPath(path.id)}
+                  >
+                    <span className="path-number">{path.number}</span>
+                    <span className="path-copy">
+                      <strong>{path.title}</strong>
+                      <small>{path.scene}</small>
+                    </span>
+                    <span className="path-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="guide-reply" aria-live="polite">
+                <Image
+                  src="/images/yeoul-portrait.png"
+                  alt=""
+                  width={68}
+                  height={82}
+                  sizes="68px"
+                />
+                <p>
+                  <b>여울</b>
+                  <br />
+                  {chosenPath?.reply ??
+                    "실 하나를 골라주면, 그 장면부터 함께 읽을게요."}
+                </p>
+              </div>
+              <button
+                className="path-continue"
+                type="button"
+                onClick={() => scrollTo(formSection.current)}
+              >
+                이제 내 정보를 적을게요 <span aria-hidden="true">↓</span>
+              </button>
+            </section>
+            <section
+              className="birth-card"
+              ref={formSection}
+              aria-labelledby="birth-heading"
+            >
               <div className="card-kicker">
-                <span>첫 장을 펼쳐볼까요?</span>
-                <span>01 / 03</span>
+                <span>나의 이야기 준비하기</span>
+                <span>02 / 03</span>
               </div>
               <h2 id="birth-heading">당신의 시작을 알려주세요</h2>
               <p className="muted card-description">
-                이름 대신 별명으로도 충분해요.
+                이름 대신 별명으로도 충분해요.{" "}
+                {chosenPath
+                  ? `‘${chosenPath.title}’을 먼저 읽어요.`
+                  : "관심 장면은 위에서 선택할 수 있어요."}
               </p>
               <form onSubmit={submit}>
                 <fieldset disabled={busy}>
@@ -394,13 +525,26 @@ export default function ReadingExperience() {
                 <span>관계의 결 · {full ? "전체 체험" : "무료 요약"}</span>
               </div>
               <div className="result-hero">
-                <p className="eyebrow">YOUR PERSONAL READING</p>
+                <div className="result-scene" aria-hidden="true">
+                  <Image
+                    src="/images/yeoul-thread-room.png"
+                    alt=""
+                    fill
+                    sizes="(max-width: 480px) 100vw, 480px"
+                  />
+                </div>
+                <p className="eyebrow">여울의 서재 · 세 번째 장면</p>
                 <h1 ref={heading} tabIndex={-1}>
                   {report.nickname || "당신"}
                   {report.nickname ? "님" : ""}의 이야기를
                   <br />
                   <em>한 장씩 읽어볼까요.</em>
                 </h1>
+                <p className="result-guide-line">
+                  {chosenPath
+                    ? `“${chosenPath.reply}”`
+                    : "“여기서부터 당신의 결을 함께 읽어볼게요.”"}
+                </p>
                 <p className="birth-meta">
                   양력 {report.chart.solarDate} ·{" "}
                   {report.birthTime ?? "시간 모름"} ·{" "}
@@ -410,6 +554,16 @@ export default function ReadingExperience() {
                   원국 계산 베타 · 규칙 기반 해설 초안
                 </p>
               </div>
+              {chosenPath && (
+                <div className="chosen-path-note">
+                  <span>내가 고른 장면</span>
+                  <strong>{chosenPath.title}</strong>
+                  <p>
+                    아래 무료 해설로 나의 기본 결을 먼저 읽고, 상세 리포트에서
+                    이 장면을 이어서 볼 수 있어요.
+                  </p>
+                </div>
+              )}
               {report.chart.warnings.length > 0 && (
                 <aside
                   className="calculation-notice"
@@ -515,13 +669,24 @@ export default function ReadingExperience() {
                       {product.chapters
                         .filter((c) => !c.free)
                         .map((chapter, index) => (
-                          <li key={chapter.title}>
+                          <li
+                            className={
+                              chapter.title === chosenPath?.chapter
+                                ? "is-chosen-chapter"
+                                : ""
+                            }
+                            key={chapter.title}
+                          >
                             <span>0{index + 3}</span>
                             <div>
                               <strong>{chapter.title}</strong>
                               <p>{chapter.detail}</p>
                             </div>
-                            <span className="lock-tag">전체 보기</span>
+                            <span className="lock-tag">
+                              {chapter.title === chosenPath?.chapter
+                                ? "내가 고른 장면"
+                                : "전체 보기"}
+                            </span>
                           </li>
                         ))}
                     </ol>
@@ -563,29 +728,76 @@ export default function ReadingExperience() {
                   <h2 ref={fullHeading} tabIndex={-1}>
                     관계의 결, 조금 더 깊이
                   </h2>
-                  {full.chapters.map((chapter, index) => (
-                    <article className="report-chapter" key={chapter.title}>
-                      <span>0{index + 3}</span>
+                  <div className="chapter-reader">
+                    <div
+                      className="chapter-progress"
+                      aria-label={`상세 챕터 ${activeChapter + 1} / ${full.chapters.length}`}
+                    >
+                      {full.chapters.map((chapter, index) => (
+                        <button
+                          key={chapter.title}
+                          type="button"
+                          aria-label={`${index + 1}장 ${chapter.title} 열기`}
+                          aria-current={
+                            activeChapter === index ? "step" : undefined
+                          }
+                          onClick={() => changeChapter(index)}
+                        >
+                          <span />
+                        </button>
+                      ))}
+                    </div>
+                    <article className="report-chapter" key={activeChapter}>
+                      <span>0{activeChapter + 3}</span>
                       <div>
-                        <h3>{chapter.title}</h3>
-                        <p>{chapter.body}</p>
-                        <blockquote>{chapter.question}</blockquote>
+                        <p className="chapter-scene-label">
+                          여울의 서재 · {activeChapter + 1}번째 실
+                        </p>
+                        <h3 ref={chapterHeading} tabIndex={-1}>
+                          {full.chapters[activeChapter].title}
+                        </h3>
+                        <p>{full.chapters[activeChapter].body}</p>
+                        <blockquote>
+                          {full.chapters[activeChapter].question}
+                        </blockquote>
                       </div>
                     </article>
-                  ))}
-                  <div className="report-ending">
-                    <p>
-                      당신의 이야기는 정해져 있지 않아요.
-                      <br />
-                      다음 장은 당신의 선택으로 채워집니다.
-                    </p>
-                    <button className="secondary" onClick={reset}>
-                      입력 정보 지우고 다시 시작
-                    </button>
-                    <small>
-                      페이지를 닫거나 새로고침하면 결과 화면은 초기화됩니다.
-                    </small>
+                    <div className="chapter-controls">
+                      <button
+                        type="button"
+                        onClick={() => changeChapter(activeChapter - 1)}
+                        disabled={activeChapter === 0}
+                      >
+                        ← 이전 장
+                      </button>
+                      <span>
+                        {String(activeChapter + 1).padStart(2, "0")} /{" "}
+                        {String(full.chapters.length).padStart(2, "0")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => changeChapter(activeChapter + 1)}
+                        disabled={activeChapter === full.chapters.length - 1}
+                      >
+                        다음 장 →
+                      </button>
+                    </div>
                   </div>
+                  {activeChapter === full.chapters.length - 1 && (
+                    <div className="report-ending">
+                      <p>
+                        당신의 이야기는 정해져 있지 않아요.
+                        <br />
+                        다음 장은 당신의 선택으로 채워집니다.
+                      </p>
+                      <button className="secondary" onClick={reset}>
+                        입력 정보 지우고 다시 시작
+                      </button>
+                      <small>
+                        페이지를 닫거나 새로고침하면 결과 화면은 초기화됩니다.
+                      </small>
+                    </div>
+                  )}
                 </section>
               )}
               {error && !checkoutOpen && (

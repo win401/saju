@@ -5,7 +5,7 @@ export const product = {
   subtitle: "사주와 내가 아는 성격, 두 시선으로 읽는 나.",
   price: 12900,
   currency: "KRW",
-  narrator: { name: "결의 해설자", tagline: "당신의 이야기를 함께 읽습니다." },
+  narrator: { name: "여울", tagline: "당신의 이야기를 함께 읽습니다." },
   chapters: [
     {
       title: "내 사주의 기본 구성",

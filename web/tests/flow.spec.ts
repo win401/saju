@@ -16,6 +16,13 @@ test("input, preview, cancel, retry, full report and reset", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: /내 마음에도 결이 있다/ }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /마음을 전하는 말/ }).click();
+  await expect(
+    page.getByText("말하지 못한 마음의 장면부터 볼게요."),
+  ).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-input.png`,
     fullPage: true,
@@ -30,6 +37,12 @@ test("input, preview, cancel, retry, full report and reset", async ({
     page.getByRole("heading", { name: "갑자일주, 자라는 나무의 이미지" }),
   ).toBeVisible();
   await expect(page.locator(".birth-meta")).toContainText("여성");
+  await expect(page.locator(".chosen-path-note")).toContainText(
+    "마음을 전하는 말",
+  );
+  await expect(page.locator(".is-chosen-chapter")).toContainText(
+    "마음을 전하는 방법",
+  );
   await expect(
     page.getByRole("heading", { name: "INFP와 갑자일주를 나란히 읽으면" }),
   ).toBeVisible();
@@ -48,6 +61,23 @@ test("input, preview, cancel, retry, full report and reset", async ({
   await page.getByRole("button", { name: "0원으로 전체 체험하기" }).click();
   await expect(
     page.getByRole("heading", { name: "관계의 결, 조금 더 깊이" }),
+  ).toBeVisible();
+  await expect(page.locator(".chapter-reader h3")).toHaveText(
+    "마음을 전하는 방법",
+  );
+  await page.getByRole("button", { name: "다음 장" }).click();
+  await expect(page.locator(".chapter-reader h3")).toHaveText(
+    "다를 때 지키는 기준",
+  );
+  await page.getByRole("button", { name: "이전 장" }).click();
+  await expect(page.locator(".chapter-reader h3")).toHaveText(
+    "마음을 전하는 방법",
+  );
+  await page
+    .getByRole("button", { name: "4장 이번 주의 관계 실험 열기" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "입력 정보 지우고 다시 시작" }),
   ).toBeVisible();
   await page.screenshot({
     path: `test-results/${testInfo.project.name}-report.png`,
