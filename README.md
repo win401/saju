@@ -11,7 +11,8 @@ saju/
 │   ├── public/                실제 서비스에 노출할 확정 정적 파일
 │   └── tests/                 계산 및 브라우저 흐름 검증
 ├── design/characters/         확정 전 캐릭터 시안과 비교 페이지
+├── docs/                      제품 계획, 할 일, 결정 기록, 조사 메모
 └── archive/static-prototype/  초기 정적 시안 보관본
 ```
 
-실행 및 개발 안내는 [web/README.md](web/README.md)를 확인하세요. 저장소 루트에서는 `npm --prefix web run dev`로 개발 서버를 켤 수 있습니다. 캐릭터 비교 페이지는 개발 모드에서만 `http://127.0.0.1:4173/character-concepts`로 열립니다.
+제품 방향과 진행 현황은 [docs/README.md](docs/README.md)에서 시작하세요. 실행 및 개발 안내는 [web/README.md](web/README.md)를 확인하세요. 저장소 루트에서는 `npm --prefix web run dev`로 개발 서버를 켤 수 있습니다. 캐릭터 비교 페이지는 개발 모드에서만 `http://127.0.0.1:4173/character-concepts`로 열립니다.
