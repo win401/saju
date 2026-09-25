@@ -1,5 +1,7 @@
 # 결 프로젝트
 
+[공개 무료 체험](https://gyeol-saju-two.vercel.app/)에서 휴대폰으로 세 콘텐츠를 테스트할 수 있습니다. 실제 결제는 없으며 입력과 결과는 새로고침하면 초기화됩니다. 배포 설정과 검증 기록은 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)에 정리했습니다.
+
 ```text
 saju/
 ├── web/                       Next.js 웹앱과 API, 테스트

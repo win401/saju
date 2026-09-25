@@ -59,4 +59,22 @@ Vercel CLI는 `web` 안이 아닌 저장소 루트에서 실행한다. 프로젝
 - 외부 Origin과 잘못된 입력·확인하지 않은 요청의 거절
 - 실제 카드 정보나 결제 청구가 없다는 표시
 
-실제 배포 주소와 배포 후 검증 결과는 확인 후 기록한다. 자동 테스트 통과와 사용자의 실제 휴대폰 사용 확인은 별도 항목으로 관리한다.
+### 2026-09-26 배포 결과
+
+- 대표 주소: https://gyeol-saju-two.vercel.app/
+- 배포 소스: `60eedea` (`main`), GitHub push로 Vercel production 자동 배포 확인
+- 배포 ID: `dpl_2MVPaG3wZrRfmP148TTWj7s5Gg9Z`, 01:29 KST Ready
+- 대표 주소는 인증 없는 요청에 HTTP 200. `X-Robots-Tag: noindex, nofollow, noarchive` 확인
+- 로컬 단위 140개, 기존 모바일·데스크톱 E2E 12개, production 빌드 통과
+- 실제 대표 주소 대상 모바일 Chromium(iPhone 13 화면)·데스크톱 E2E 8개 통과: 세 테마의 입력 → 무료 해설 → 상세 4장 → 초기화, 가로 넘침·JS 오류 없음
+- 공개 API의 같은 Origin 요청 성공·외부 Origin 403, 기존 모의 결제 경로 403, 캐릭터 시안 경로 404 확인
+- 공개 결과의 쿠키/브라우저 저장소 비저장, preview의 상세 장·audit 미포함, 초기화 시 저장소 삭제 요청이 불필요한 동작 확인
+- 정통 사주 모바일 추가 확인: 새로고침 후 별명·생일과 결과 초기화, 390px 화면 가로 넘침 없음. 챕터·화면 캡처로 글자와 레이아웃 확인
+
+원격 E2E 재실행은 `web`에서 다음과 같이 한다. 실제 출생정보 대신 테스트 입력을 사용한다.
+
+```sh
+PUBLIC_DEMO_URL=https://gyeol-saju-two.vercel.app npm run test:e2e:public
+```
+
+브라우저 자동 검증은 통과했다. 사용자의 실제 휴대폰(iOS Safari/Android Chrome) 사용 확인은 별도로 진행한다.
