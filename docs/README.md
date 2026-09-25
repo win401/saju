@@ -10,6 +10,7 @@
 | [ROADMAP.md](ROADMAP.md) | 현재 상태, 우선순위, 할 일과 완료 기준 |
 | [DECISIONS.md](DECISIONS.md) | 확정된 결정, 제안, 미결정 사항의 이유 |
 | [RESEARCH_NOTES.md](RESEARCH_NOTES.md) | 경쟁 서비스 참고 사항, 지식재산권·사업 준비 확인 항목 |
+| [DATA_AI_ARCHITECTURE.md](DATA_AI_ARCHITECTURE.md) | 이용 데이터 보관·분석 대시보드·AI 도입 순서 제안 |
 
 ## 기록 규칙
 
