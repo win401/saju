@@ -1,0 +1,27 @@
+/* 가장 먼저 수정할 파일: 브랜드 색상, 글꼴, 여백, 모서리 */
+:root {
+  color-scheme: light;
+  --color-bg: #f5f4ef;
+  --color-surface: #fffefa;
+  --color-ink: #29352f;
+  --color-muted: #6c736b;
+  --color-line: #dcdfd5;
+  --color-brand: #303f34;
+  --color-accent: #a34531;
+  --color-soft: #eaf0e5;
+  --color-danger: #a32e27;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
+    sans-serif;
+  --font-display: "Iowan Old Style", "Batang", "AppleMyungjo", Georgia, serif;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --page-width: 480px;
+}

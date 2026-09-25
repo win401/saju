@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="나를 이해하는 새로운 시선, 결. 사주 리포트 체험">
+  <title>결 — 나를 읽는 시간</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23242c27'/%3E%3Ctext x='20' y='28' text-anchor='middle' font-size='26' fill='%23faf8f3'%3E결%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+</head>
+<body>
+  <header class="header"><a class="brand" href="./" aria-label="결 처음으로">결<span>나를 읽는 시간</span></a><span class="preview-tag">출시 전 체험</span></header>
+  <main>
+    <section id="input-view" class="intro-grid" aria-labelledby="intro-title">
+      <div class="intro">
+        <p class="eyebrow">A MOMENT FOR YOURSELF</p>
+        <h1 id="intro-title">같은 나를,<br>조금 다른<br><em>시선으로.</em></h1>
+        <p class="lead">관계 속 나의 모습이 궁금한 날.<br>사주를 통해 나를 돌아보는 시간을 가져보세요.</p>
+        <div class="editorial-line"><span>01 — 관계의 결</span><span>LOVE & CONNECTION</span></div>
+        <p class="small-note">미래를 단정하기보다, 지금의 나를 이해하는 이야기.</p>
+      </div>
+      <div class="input-card">
+        <div class="card-heading"><span class="step-label">첫 번째 이야기</span><span class="step-count">01 / 03</span></div>
+        <h2>당신의 시작을 알려주세요</h2><p class="muted">태어난 날과 시간부터 이야기가 시작됩니다.</p>
+        <form id="birth-form">
+          <label for="nickname">어떻게 불러드릴까요? <span class="optional">선택</span></label>
+          <input id="nickname" name="nickname" maxlength="20" placeholder="이름 대신 별명도 좋아요" autocomplete="off">
+          <fieldset><legend>생년월일 기준</legend><div class="segmented"><label><input type="radio" name="calendar" value="solar" checked><span>양력</span></label><label><input type="radio" name="calendar" value="lunar"><span>음력</span></label></div></fieldset>
+          <label class="check-row" id="leap-row" hidden><input type="checkbox" id="leap">음력 윤달에 태어났어요</label>
+          <label for="birth-date">태어난 날짜</label><input type="date" id="birth-date" name="birthDate" min="1900-01-01" required aria-describedby="date-help"><p id="date-help" class="field-help">체험에서는 입력 흐름만 확인하며 음력 변환은 하지 않습니다.</p>
+          <div class="time-heading"><label for="birth-time">태어난 시간</label><label class="check-row"><input type="checkbox" id="unknown-time">시간을 몰라요</label></div>
+          <input type="time" id="birth-time" name="birthTime" required>
+          <div class="privacy-note">입력 정보는 서버로 전송하거나 저장하지 않아요.<br>현재 결과는 입력값과 무관한 공통 샘플입니다.</div>
+          <p id="form-error" class="error" role="alert" hidden></p>
+          <button class="primary" type="submit">무료 요약 체험하기 <span aria-hidden="true">↗</span></button>
+          <p class="under-button">실제 사주 분석·결제 없이 둘러보는 체험입니다.</p>
+        </form>
+      </div>
+    </section>
+    <section id="result-view" class="result-container" hidden aria-labelledby="result-title">
+      <button class="back-button" id="edit-button">← 입력 수정하기</button>
+      <div class="result-heading"><p class="eyebrow">YOUR RELATIONSHIP STORY · SAMPLE</p><p id="birth-summary" class="muted"></p><h1 id="result-title" tabindex="-1"><span id="reader-name">당신</span>의 관계에는<br><em>차분한 온기</em>가 있어요.</h1><p class="sample-label">예시 리포트 · 실제 사주 풀이가 아닙니다</p></div>
+      <div class="summary-grid"><article class="insight-card"><span class="chapter-number">01</span><h2>천천히, 깊어지는 마음</h2><p>빠르게 가까워지는 설렘보다, 작은 약속이 쌓이며 생기는 편안함. 이 샘플에서는 신뢰를 통해 관계가 깊어지는 모습을 이야기합니다.</p><div class="keywords"><span>신뢰</span><span>꾸준함</span><span>안정감</span></div></article><article class="insight-card question-card"><span class="chapter-number">SELF REFLECTION</span><h2>오늘 나에게 건네는 질문</h2><p class="reflection">“나는 마음을 표현하기 전에<br>너무 확실한 답을<br>기다리고 있지는 않을까?”</p><p class="muted">정답보다, 떠오르는 장면을 생각해보세요.</p></article></div>
+      <div id="unlock-card" class="unlock-card"><div><span class="step-label">두 번째 이야기</span><h2>관계의 결을 더 자세히 읽어보세요</h2><p>나의 표현 방식 · 반복되는 관계 패턴 · 관계를 위한 작은 연습</p></div><div class="unlock-action"><span class="price">상세 리포트 샘플</span><button id="unlock-button" class="primary">상세 리포트 체험 <span aria-hidden="true">↗</span></button><small>요금이 청구되지 않습니다</small></div></div>
+      <div id="full-report" hidden>
+        <div class="report-divider"><span>THE FULL STORY</span><span>03 / 03</span></div><h2 id="full-title" tabindex="-1">조금 더 깊이 들여다보면</h2>
+        <article class="report-chapter"><span>01</span><div><h3>마음을 표현하는 나의 방식</h3><p>큰 말보다 일상의 작은 행동으로 마음을 전하는 사람을 떠올려보세요. 상대의 이야기를 기억하거나, 바쁜 날 안부를 묻는 행동도 표현이 될 수 있습니다. 다만 상대가 그 의미를 항상 알아채는 것은 아니니, 짧은 말 한마디를 더해보는 건 어떨까요?</p></div></article>
+        <article class="report-chapter"><span>02</span><div><h3>관계에서 돌아볼 패턴</h3><p>갈등을 피하려고 자신의 필요를 미루면 편안해 보이는 관계 안에서도 피로가 쌓일 수 있습니다. 최근에 괜찮다고 말했지만 실제로는 아쉬웠던 순간을 떠올려보세요. 이것은 개인에 대한 분석이 아니라, 리포트의 구성과 말투를 살펴보기 위한 예시입니다.</p></div></article>
+        <article class="report-chapter"><span>03</span><div><h3>이번 주, 작은 연습 하나</h3><p>“너는 항상” 대신 “나는 그때 이렇게 느꼈어”로 말을 시작해보세요. 상대를 판단하기보다 자신의 경험을 구체적으로 전하는 문장을 한 줄 적어보는 것도 좋습니다.</p></div></article>
+        <div class="report-end"><p>당신의 이야기는 정해져 있지 않아요.<br>다음 장은 당신의 선택으로 채워집니다.</p><button id="restart-button" class="secondary">처음부터 다시 체험</button></div>
+      </div>
+    </section>
+  </main>
+  <footer><span class="footer-brand">결</span><p>나를 이해하는 또 하나의 관점</p><span>비공개 개발용 프로토타입 · 결제 기능 없음</span></footer>
+</body>
+</html>
