@@ -65,11 +65,18 @@ const initial: BirthInput = {
   location: "KR",
 };
 
-export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
+export default function ReadingExperience({
+  theme,
+  publicDemo = false,
+}: {
+  theme: ReadingTheme;
+  publicDemo?: boolean;
+}) {
   const product = READING_PRODUCTS[theme];
   const [input, setInput] = useState<BirthInput>({ ...initial, theme });
   const [view, setView] = useState<"input" | "result">("input");
   const [report, setReport] = useState<ReadingPreview | null>(null);
+  const [reportInput, setReportInput] = useState<BirthInput | null>(null);
   const [full, setFull] = useState<FullReading | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -114,7 +121,7 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
     setInput((previous) => ({ ...previous, [key]: value }));
   }
   async function discard() {
-    if (report)
+    if (report && report.demoMode !== "public")
       await fetch(`/api/reports/${report.id}`, { method: "DELETE" }).catch(
         () => {},
       );
@@ -125,15 +132,16 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
     setError("");
     try {
       await discard();
+      const submittedInput: BirthInput = {
+        ...input,
+        theme,
+        mbti: theme === "mbti" ? input.mbti : null,
+        focus: theme === "love" ? storyPath : null,
+      };
       const response = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...input,
-          theme,
-          mbti: theme === "mbti" ? input.mbti : null,
-          focus: theme === "love" ? storyPath : null,
-        }),
+        body: JSON.stringify(submittedInput),
       });
       const data = await response.json();
       if (!response.ok)
@@ -141,6 +149,7 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
           data.error || "결과를 만들지 못했어요. 잠시 후 다시 시도해주세요.",
         );
       setReport(data);
+      setReportInput(submittedInput);
       setFull(null);
       setView("result");
     } catch (err) {
@@ -158,11 +167,23 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch(`/api/reports/${report.id}/demo-checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirmed: true }),
-      });
+      const publicReading = report.demoMode === "public";
+      if (publicReading && !reportInput)
+        throw new Error("입력 화면에서 다시 시작해주세요.");
+      const response = await fetch(
+        publicReading
+          ? "/api/demo/readings"
+          : `/api/reports/${report.id}/demo-checkout`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            publicReading
+              ? { confirmed: true, input: reportInput }
+              : { confirmed: true },
+          ),
+        },
+      );
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.error || "체험 주문을 완료하지 못했어요.");
@@ -186,6 +207,7 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
   async function reset() {
     await discard();
     setReport(null);
+    setReportInput(null);
     setFull(null);
     setInput({ ...initial, theme });
     setStoryPath(null);
@@ -561,10 +583,10 @@ export default function ReadingExperience({ theme }: { theme: ReadingTheme }) {
                       문안은 검수 중입니다.
                     </p>
                     <p>
-                      출생정보·선택 유형·관심 장면은 이 서버에서 처리되며,
-                      리포트는 최대 1시간 임시 보관합니다. 외부 AI나 광고
-                      서비스로 전송하지 않습니다. 정식 서비스 전환 시 정책을
-                      다시 안내합니다.
+                      {publicDemo
+                        ? "이 무료 체험은 요청할 때마다 서버에서 결과를 계산하며, 앱 데이터베이스·서버 저장소·쿠키에 출생정보와 리포트를 보관하지 않습니다. 입력과 결과는 현재 화면에만 남고 새로고침하면 초기화됩니다. 전체 체험 시 같은 입력을 한 번 더 전송합니다."
+                        : "출생정보·선택 유형·관심 장면은 서버에서 처리되며, 리포트는 최대 1시간 임시 보관합니다."}{" "}
+                      외부 AI나 광고 서비스로 전송하지 않습니다.
                     </p>
                   </details>
                   {error && (

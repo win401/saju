@@ -11,15 +11,29 @@ export function json(data: unknown, status = 200) {
 }
 export function checkOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
-  // Use an explicit trusted origin; framework-internal URLs can use a different host.
-  const trustedOrigin =
-    process.env.APP_ORIGIN ||
-    (process.env.NODE_ENV === "development"
-      ? "http://127.0.0.1:4173"
-      : undefined);
-  return (
-    !origin || (!!trustedOrigin && origin === new URL(trustedOrigin).origin)
-  );
+  if (!origin) return true;
+  // Trust deployment configuration, never client-supplied Host/X-Forwarded-Host.
+  const configured = [process.env.APP_ORIGIN];
+  if (process.env.NODE_ENV === "development")
+    configured.push("http://127.0.0.1:4173");
+  if (process.env.VERCEL === "1") {
+    for (const host of [
+      process.env.VERCEL_URL,
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+      process.env.VERCEL_BRANCH_URL,
+    ]) {
+      if (host && /^[a-z0-9.-]+$/i.test(host))
+        configured.push(`https://${host}`);
+    }
+  }
+  return configured.some((value) => {
+    if (!value) return false;
+    try {
+      return origin === new URL(value).origin;
+    } catch {
+      return false;
+    }
+  });
 }
 export async function readSmallJson(request: NextRequest): Promise<unknown> {
   if (!request.headers.get("content-type")?.startsWith("application/json"))

@@ -1,0 +1,12 @@
+.git/
+.vercel/
+archive/
+design/
+docs/
+**/node_modules/
+**/.next/
+**/.vercel/
+**/.env*
+**/*.tsbuildinfo
+**/playwright-report/
+**/test-results/

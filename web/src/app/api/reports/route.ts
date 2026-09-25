@@ -3,6 +3,8 @@ import { NextRequest } from "next/server";
 import { birthSchema } from "@/lib/birth-schema";
 import { calculateChart } from "@/lib/saju";
 import { createStoredReport } from "@/features/reading/server/report-store";
+import { createThemedReport } from "@/features/reading/server/create-report";
+import { isPublicDemoEnabled } from "@/lib/deployment-mode";
 import { checkOrigin, json, readSmallJson, SESSION_COOKIE } from "@/lib/http";
 export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
@@ -14,6 +16,23 @@ export async function POST(request: NextRequest) {
       return json({ error: parsed.error.issues[0].message }, 400);
     const input = parsed.data;
     const chart = calculateChart(input);
+    if (isPublicDemoEnabled()) {
+      const content = createThemedReport(input, chart);
+      return json({
+        id: randomUUID(),
+        theme: input.theme,
+        nickname: input.nickname,
+        gender: input.gender,
+        mbti: input.mbti,
+        birthTime: input.birthTime,
+        focus: input.focus,
+        chart,
+        intro: content.intro,
+        comparison: content.comparison,
+        demoAvailable: true,
+        demoMode: "public",
+      });
+    }
     const owner = request.cookies.get(SESSION_COOKIE)?.value || randomUUID();
     const r = createStoredReport(owner, input, chart);
     const response = json({
@@ -28,6 +47,7 @@ export async function POST(request: NextRequest) {
       intro: r.content.intro,
       comparison: r.content.comparison,
       demoAvailable: process.env.NODE_ENV === "development",
+      demoMode: process.env.NODE_ENV === "development" ? "local" : null,
     });
     response.cookies.set(SESSION_COOKIE, owner, {
       httpOnly: true,

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import ReadingExperience from "@/features/reading/ReadingExperience";
 import { READING_THEMES, type ReadingTheme } from "@/types/reading";
 import { READING_PRODUCTS } from "@/features/reading/catalog";
+import { isPublicDemoEnabled } from "@/lib/deployment-mode";
 
 function validTheme(value: string): value is ReadingTheme {
   return (READING_THEMES as readonly string[]).includes(value);
@@ -26,5 +27,11 @@ export default async function ReadingPage({
 }) {
   const { theme } = await params;
   if (!validTheme(theme)) notFound();
-  return <ReadingExperience key={theme} theme={theme} />;
+  return (
+    <ReadingExperience
+      key={theme}
+      theme={theme}
+      publicDemo={isPublicDemoEnabled()}
+    />
+  );
 }

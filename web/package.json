@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:public": "playwright test --config playwright.public.config.ts",
     "format": "prettier --write src tests *.ts *.json README.md"
   },
   "dependencies": {

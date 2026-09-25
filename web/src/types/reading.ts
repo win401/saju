@@ -71,5 +71,6 @@ export type ReadingPreview = {
   intro: Chapter;
   comparison: Chapter;
   demoAvailable: boolean;
+  demoMode: "public" | "local" | null;
 };
 export type FullReading = { chapters: Chapter[]; unlocked: true; mode: "demo" };

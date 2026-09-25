@@ -12,6 +12,7 @@
 | [RESEARCH_NOTES.md](RESEARCH_NOTES.md) | 경쟁 서비스 참고 사항, 지식재산권·사업 준비 확인 항목 |
 | [DATA_AI_ARCHITECTURE.md](DATA_AI_ARCHITECTURE.md) | 이용 데이터 보관·분석 대시보드·AI 도입 순서 제안 |
 | [INTERPRETATION_ENGINE.md](INTERPRETATION_ENGINE.md) | 관계 해석 엔진의 계산 특징·규칙·근거 표시·고정 검수 사례 |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Vercel 공개 무료 체험 설정, 데이터 처리, 배포 검증 기록 |
 
 ## 기록 규칙
 
