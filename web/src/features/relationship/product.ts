@@ -19,17 +19,22 @@ export const product = {
     },
     {
       title: "가까워지는 나만의 속도",
-      detail: "관계에서 돌아볼 질문과 해석",
+      detail: "만남과 연락의 속도를 조율하는 질문",
       free: false,
     },
     {
       title: "마음을 전하는 방법",
-      detail: "유형별 표현 방식과 대화 연습",
+      detail: "내 표현 선호와 바로 써볼 대화 문장",
       free: false,
     },
     {
-      title: "관계를 위한 작은 실천",
-      detail: "일상에 가져갈 세 가지 질문",
+      title: "다를 때 지키는 기준",
+      detail: "엇갈린 순간에 확인할 기준과 경계",
+      free: false,
+    },
+    {
+      title: "이번 주의 관계 실험",
+      detail: "이번 주에 해볼 한 문장과 돌아볼 기록",
       free: false,
     },
   ],

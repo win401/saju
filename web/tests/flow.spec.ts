@@ -133,7 +133,7 @@ test("API preview omits paid chapters; separate sessions cannot unlock", async (
     { data: { confirmed: true } },
   );
   expect(unlock.status()).toBe(200);
-  expect((await unlock.json()).chapters).toHaveLength(3);
+  expect((await unlock.json()).chapters).toHaveLength(4);
   expect((await request.delete(`/api/reports/${preview.id}`)).status()).toBe(
     200,
   );

@@ -24,7 +24,7 @@ it("protects reports by owner, permits idempotent unlock, and deletes explicitly
   expect(getStoredReport(r.id, "owner-b")).toBeNull();
   expect(unlockStoredReport(r.id, "owner-b")).toBeNull();
   const chapters = unlockStoredReport(r.id, "owner-a");
-  expect(chapters).toHaveLength(3);
+  expect(chapters).toHaveLength(4);
   expect(unlockStoredReport(r.id, "owner-a")).toEqual(chapters);
   deleteStoredReport(r.id, "owner-b");
   expect(getStoredReport(r.id, "owner-a")).not.toBeNull();

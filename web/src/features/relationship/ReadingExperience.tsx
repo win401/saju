@@ -531,7 +531,7 @@ export default function ReadingExperience() {
                     <p className="price">{formatPrice(product.price)}</p>
                     <p className="price-note">출시 예정가 · 현재는 무료 체험</p>
                     <ul>
-                      <li>안내된 세 가지 상세 챕터</li>
+                      <li>안내된 네 가지 상세 챕터</li>
                       <li>사주와 선택한 유형을 함께 읽기</li>
                       <li>관계에 적용하는 질문과 대화 예시</li>
                     </ul>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { birthSchema } from "../src/lib/birth-schema";
 import { calculateChart } from "../src/lib/saju";
 import { createReport } from "../src/features/relationship/server/report";
+import { product } from "../src/features/relationship/product";
 import type { BirthInput } from "../src/types/reading";
 const base: BirthInput = {
   nickname: "테스트",
@@ -103,6 +104,9 @@ describe("validation and editorial personalization", () => {
     const r = createReport({ ...base, mbti: null }, chart());
     expect(r.comparison.body).toContain("유형 비교는 생략");
     expect(r.comparison.body).not.toContain("INFP");
+    expect(r.chapters.every((chapter) => !chapter.body.includes("MBTI"))).toBe(
+      true,
+    );
   });
   it("changes content with the day element and selected type", () => {
     const a = createReport(base, chart());
@@ -113,5 +117,11 @@ describe("validation and editorial personalization", () => {
     expect(a.intro.title).not.toEqual(b.intro.title);
     expect(a.comparison.body).not.toEqual(b.comparison.body);
     expect(a.chapters[1].question).not.toEqual(b.chapters[1].question);
+  });
+  it("delivers every chapter promised at the paywall", () => {
+    const titles = createReport(base, chart()).chapters.map(({ title }) => title);
+    expect(titles).toEqual(
+      product.chapters.filter(({ free }) => !free).map(({ title }) => title),
+    );
   });
 });
