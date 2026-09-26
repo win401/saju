@@ -46,7 +46,16 @@ Vercel CLI는 `web` 안이 아닌 저장소 루트에서 실행한다. 프로젝
 3. 서버 재시작 또는 재배포 후 `GET /api/ai/love`의 사용 가능 여부와 `/readings/love` 결과 화면의 상담 패널을 확인한다. 상태 확인 API는 모델 호출을 하지 않는다. 패널에서 연애 상태·질문·체험 코드를 입력하고 전송 동의를 받아야 상담을 요청한다.
 4. 실제 키가 설정된 뒤 가상 입력으로 소수의 요청을 보내 응답 품질·근거·지연시간·실제 사용량을 확인한다. 검증 결과를 기록하기 전에는 정상 실호출이나 품질 검수가 완료됐다고 표시하지 않는다.
 
-현재 로컬 키는 미설정이고 Vercel production에는 사용자가 키를 등록했다. 키 값은 문서에 기록하지 않으며, AI 코드 활성화·배포 후 실제 호출 검증 결과는 별도로 남긴다. 기본 모델의 기능은 [GPT-6 Sol 공식 문서](https://developers.openai.com/api/docs/models/gpt-6-sol)를 참고한다. 다른 모델로 바꿀 때는 계정 접근 가능 여부와 구조화 출력·요청 설정을 다시 검증한다.
+현재 로컬 키는 미설정이고 Vercel production에는 사용자가 키를 등록했다. 키 값은 문서에 기록하지 않는다. 기본 모델의 기능은 [GPT-6 Sol 공식 문서](https://developers.openai.com/api/docs/models/gpt-6-sol)를 참고한다. 다른 모델로 바꿀 때는 계정 접근 가능 여부와 구조화 출력·요청 설정을 다시 검증한다.
+
+### 2026-09-26 AI 연결 검증
+
+- 구현 커밋 `90bbc45`, Vercel 배포 `dpl_W6E8yYAKeg5KT8cnYhBwmZgNNTvZ` Ready. 대표 주소는 기존과 같다.
+- Production에 `OPENAI_API_KEY`, `SAJU_AI_ENABLED=1`, 별도 무작위 `SAJU_AI_ACCESS_CODE`가 설정됐다. 접근 코드의 소유자용 사본은 커밋에서 제외한 `web/.env.ai-access.local`에 보관한다. API 키와 다른 값이다.
+- `/api/ai/love` 상태 조회에서 `available: true`, `requiresAccessCode: true` 확인. 소유자 접근 코드가 없는 요청은 유료 호출 전에 거절된다.
+- 타입 검사, 단위 테스트 204개, 기존 E2E 12개, AI UI 모의 E2E 6개, production 빌드 통과. 모의 E2E 결과는 실제 AI 답변 품질 검증이 아니다.
+- 실제 배포의 모바일 화면에서 가상 입력으로 상담 요청 **1회** 실행. OpenAI 사용량·크레딧 한도 오류를 앱이 `quota_exceeded` / HTTP 503으로 반환했다. 아직 실제 상담 결과 생성·모델 품질·정상 지연시간은 검증하지 못했다.
+- 요청 당시 JS 오류·가로 넘침·앱 세션 쿠키 없음. 반복 호출하지 않고 API 계정의 결제 잔액·조직/프로젝트 사용 한도 확인을 요청했다. [공식 한도 안내](https://developers.openai.com/api/docs/guides/spend-limits)에 따라 원인이 해소된 뒤 다시 검증한다.
 
 ### AI로 전달하는 데이터와 제한
 
