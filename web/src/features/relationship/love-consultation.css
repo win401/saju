@@ -1,0 +1,416 @@
+/* 여울의 AI 연애 상담. 다른 리포트 스타일에 영향을 주지 않는 독립 클래스. */
+.ai-love {
+  margin: 30px 0;
+  border: 1px solid #d2d8c9;
+  border-radius: 18px;
+  background: #fffaf1;
+  overflow: hidden;
+}
+.ai-love--quiet {
+  padding: 23px;
+  border-style: dashed;
+  background: #f2f1e8;
+}
+.ai-love-kicker {
+  display: block;
+  margin-bottom: 7px;
+  color: #637360;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.ai-love--quiet h2 {
+  margin-bottom: 8px;
+  font-size: 1.0625rem;
+}
+.ai-love--quiet p {
+  margin-bottom: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+.ai-love-text-button {
+  margin-top: 10px;
+  padding: 4px 0;
+  border: 0;
+  color: var(--color-brand);
+  background: transparent;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.ai-love-header {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 24px 20px;
+  border-bottom: 1px solid #d8dfcf;
+  background: #e9eddf;
+}
+.ai-love-header > div {
+  min-width: 0;
+}
+.ai-love-portrait {
+  width: 58px;
+  height: 74px;
+  object-fit: cover;
+  object-position: center 26%;
+  flex-shrink: 0;
+  border-radius: 30px 30px 8px 8px;
+  box-shadow: 0 0 0 3px #fffaf1aa;
+}
+.ai-love-header h2 {
+  margin-bottom: 5px;
+  font: 600 1.25rem/1.5 var(--font-display);
+  letter-spacing: -0.05em;
+}
+.ai-love-header p {
+  margin: 0;
+  color: #66715e;
+  font-size: 0.75rem;
+}
+.ai-love-form {
+  padding: 24px 20px 18px;
+}
+.ai-love-new-question {
+  padding: 12px;
+  border-left: 2px solid #819875;
+  color: #65745e;
+  background: #eef0e5;
+  font-size: 0.8125rem;
+}
+.ai-love-status legend,
+.ai-love-question-field > label,
+.ai-love-code-field > label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--color-ink);
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+.ai-love-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.ai-love-options label {
+  position: relative;
+  min-width: 0;
+}
+.ai-love-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.ai-love-options span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  height: 100%;
+  padding: 10px 8px;
+  border: 1px solid #deded0;
+  border-radius: 8px;
+  background: #fffdf7;
+  color: #6c7467;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.ai-love-options input:checked + span {
+  border-color: #658061;
+  background: #eaf0e3;
+  color: #355432;
+  font-weight: 600;
+}
+.ai-love-options input:focus-visible + span {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.ai-love-options input:disabled + span {
+  opacity: 0.65;
+  cursor: wait;
+}
+.ai-love-question-field {
+  margin-top: 24px;
+}
+.ai-love-question-field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 145px;
+  padding: 14px;
+  border: 1px solid #ccd2c6;
+  border-radius: 10px;
+  background: #fffefb;
+  color: var(--color-ink);
+  font: 1rem/1.85 var(--font-body);
+  resize: vertical;
+  touch-action: manipulation;
+}
+.ai-love-question-field textarea::placeholder {
+  color: #818679;
+  font-size: 0.875rem;
+}
+.ai-love-question-field textarea:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+.ai-love-question-field textarea:disabled {
+  background: #f0f0e8;
+}
+.ai-love-question-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 7px;
+  color: #73796c;
+}
+.ai-love-question-meta small {
+  font-size: 0.6875rem;
+}
+.ai-love-question-meta small:last-child {
+  white-space: nowrap;
+}
+.ai-love-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 18px 0 24px;
+}
+.ai-love-suggestions > span {
+  width: 100%;
+  margin-bottom: 2px;
+  color: #7c826f;
+  font-size: 0.6875rem;
+}
+.ai-love-suggestions button {
+  padding: 8px 11px;
+  border: 1px solid #e1dfd0;
+  border-radius: 10px;
+  background: #f5f3e9;
+  color: #687261;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  text-align: left;
+  word-break: keep-all;
+}
+.ai-love-suggestions button:hover:not(:disabled) {
+  border-color: #859779;
+}
+.ai-love-code-field {
+  margin-bottom: 20px;
+}
+.ai-love-privacy {
+  padding: 16px;
+  border: 1px solid #e3e3d5;
+  border-radius: 10px;
+  background: #f7f6ee;
+}
+.ai-love-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #3a503d;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.ai-love-consent input {
+  margin: 4px 0 0;
+}
+.ai-love-privacy p {
+  margin: 10px 0 0;
+  color: #73776c;
+  font-size: 0.6875rem;
+  line-height: 1.8;
+}
+.ai-love-privacy a {
+  color: #486147;
+  text-underline-offset: 3px;
+}
+.ai-love-submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 20px;
+  padding: 13px 17px;
+  border: 1px solid var(--color-brand);
+  border-radius: 9px;
+  background: var(--color-brand);
+  color: #fffaf1;
+  font-size: 0.875rem;
+}
+.ai-love-submit:hover:not(:disabled) {
+  background: #3b604b;
+}
+.ai-love-form-note {
+  margin: 10px 0 0;
+  color: #7b806f;
+  text-align: center;
+  font-size: 0.6875rem;
+}
+.ai-love-spinner {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  border: 2px solid #fffaf144;
+  border-top-color: #fffaf1;
+  border-radius: 50%;
+  animation: ai-love-spin 0.9s linear infinite;
+}
+@keyframes ai-love-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ai-love-error {
+  margin: 15px 0 0;
+  padding: 12px;
+  border: 1px solid #e5c7b8;
+  border-radius: 8px;
+  background: #fff2e9;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+.ai-love-result {
+  padding: 24px 20px;
+}
+.ai-love-my-question {
+  margin: 0 0 30px 20px;
+  padding: 16px;
+  border-radius: 13px 2px 13px 13px;
+  background: #eaf0e2;
+}
+.ai-love-my-question > span,
+.ai-love-answer-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #697962;
+  font-size: 0.6875rem;
+}
+.ai-love-my-question p {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+  white-space: pre-line;
+}
+.ai-love-answer > h3 {
+  margin: 8px 0 20px;
+  font: 600 1.5rem/1.65 var(--font-display);
+  letter-spacing: -0.05em;
+}
+.ai-love-answer p {
+  font-size: 0.9375rem;
+  line-height: 1.95;
+  white-space: pre-line;
+}
+.ai-love-opening {
+  color: #495b44;
+}
+.ai-love-answer-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #e4dfd1;
+}
+.ai-love-answer-section h4 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.ai-love-answer-section h4 span {
+  display: block;
+  margin-bottom: 6px;
+  color: #a08053;
+  font: 0.875rem var(--font-display);
+}
+.ai-love-answer-section p:last-child {
+  margin-bottom: 0;
+}
+.ai-love-takeaway {
+  margin: 28px 0 24px;
+  padding: 20px;
+  border-left: 2px solid #9bab86;
+  background: #edf0e2;
+}
+.ai-love-takeaway > span {
+  color: #728165;
+  font-size: 0.6875rem;
+}
+.ai-love-takeaway p {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  color: #3c5636;
+}
+.ai-love-evidence {
+  padding: 15px 0;
+  border-top: 1px solid #e4dfd1;
+  border-bottom: 1px solid #e4dfd1;
+}
+.ai-love-evidence summary {
+  color: #65745c;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.ai-love-evidence ul {
+  margin: 16px 0 0;
+  padding-left: 18px;
+}
+.ai-love-evidence li + li {
+  margin-top: 12px;
+}
+.ai-love-evidence strong {
+  color: #55664d;
+  font-size: 0.75rem;
+}
+.ai-love-evidence p {
+  margin: 3px 0 0;
+  color: #717a6a;
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+.ai-love-answer .ai-love-limitation {
+  margin-top: 14px;
+  color: #818475;
+  font-size: 0.6875rem;
+  line-height: 1.8;
+}
+.ai-love-next {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid #dddccc;
+}
+.ai-love-next > span {
+  color: #9a7950;
+  font-size: 0.75rem;
+}
+.ai-love-next p {
+  margin: 8px 0 0;
+  font: 1rem/1.8 var(--font-display);
+}
+.ai-love-next small {
+  display: block;
+  margin-top: 9px;
+  color: #818475;
+  font-size: 0.6875rem;
+}
+@media (max-width: 360px) {
+  .ai-love-header,
+  .ai-love-form,
+  .ai-love-result {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .ai-love-header h2 {
+    font-size: 1.125rem;
+  }
+  .ai-love-portrait {
+    width: 47px;
+    height: 63px;
+  }
+}

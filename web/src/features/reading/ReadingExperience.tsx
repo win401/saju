@@ -7,6 +7,7 @@ import { MBTI_TYPES } from "@/lib/birth-schema";
 import { formatPrice, READING_PRODUCTS } from "./catalog";
 import ExplanationBasis from "./ExplanationBasis";
 import ChapterNarrative from "./ChapterNarrative";
+import LoveConsultation from "@/features/relationship/LoveConsultation";
 import {
   ELEMENTS,
   type BirthInput,
@@ -586,7 +587,9 @@ export default function ReadingExperience({
                       {publicDemo
                         ? "이 무료 체험은 요청할 때마다 서버에서 결과를 계산하며, 앱 데이터베이스·서버 저장소·쿠키에 출생정보와 리포트를 보관하지 않습니다. 입력과 결과는 현재 화면에만 남고 새로고침하면 초기화됩니다. 전체 체험 시 같은 입력을 한 번 더 전송합니다."
                         : "출생정보·선택 유형·관심 장면은 서버에서 처리되며, 리포트는 최대 1시간 임시 보관합니다."}{" "}
-                      외부 AI나 광고 서비스로 전송하지 않습니다.
+                      기본 해설은 외부 AI나 광고 서비스로 전송하지 않습니다.
+                      연애 사주의 AI 상담을 별도로 요청하면, 전송 항목을
+                      안내하고 동의받은 뒤 OpenAI로 상담 정보를 전송합니다.
                     </p>
                   </details>
                   {error && (
@@ -657,6 +660,9 @@ export default function ReadingExperience({
                     이 장면을 이어서 볼 수 있어요.
                   </p>
                 </div>
+              )}
+              {theme === "love" && reportInput && (
+                <LoveConsultation key={report.id} input={reportInput} />
               )}
               {report.chart.warnings.length > 0 && (
                 <aside
