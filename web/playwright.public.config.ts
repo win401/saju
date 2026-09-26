@@ -7,7 +7,7 @@ const baseURL = new URL(target).origin;
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "**/public-demo.spec.ts",
+  testMatch: ["**/public-demo.spec.ts", "**/birth-profile.spec.ts"],
   fullyParallel: false,
   workers: 1,
   timeout: 60000,

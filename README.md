@@ -1,6 +1,6 @@
 # 결 프로젝트
 
-[공개 무료 체험](https://gyeol-saju-two.vercel.app/)에서 휴대폰으로 세 콘텐츠를 테스트할 수 있습니다. 실제 결제는 없으며 입력과 결과는 새로고침하면 초기화됩니다. 배포 설정과 검증 기록은 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)에 정리했습니다.
+[공개 무료 체험](https://gyeol-saju-two.vercel.app/)에서 휴대폰으로 세 콘텐츠를 테스트할 수 있습니다. 실제 PG 결제는 없습니다. 최신 코드에는 기본 출생정보를 같은 브라우저에 24시간 기억해 세 콘텐츠에서 다시 쓰는 기능이 있으며, 결과는 새로고침하면 초기화됩니다. 이 변경의 배포·검증 상태는 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)에 정리했습니다.
 
 ```text
 saju/

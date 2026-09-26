@@ -8,8 +8,10 @@ import { formatPrice, READING_PRODUCTS } from "./catalog";
 import ExplanationBasis from "./ExplanationBasis";
 import ChapterNarrative from "./ChapterNarrative";
 import LoveConsultation from "@/features/relationship/LoveConsultation";
+import useBirthProfile from "./useBirthProfile";
 import {
   ELEMENTS,
+  READING_THEMES,
   type BirthInput,
   type ReadingPreview,
   type FullReading,
@@ -74,7 +76,17 @@ export default function ReadingExperience({
   publicDemo?: boolean;
 }) {
   const product = READING_PRODUCTS[theme];
-  const [input, setInput] = useState<BirthInput>({ ...initial, theme });
+  const {
+    input,
+    setInput,
+    ready: profileReady,
+    remember,
+    changeRemember,
+    savedProfile,
+    storageMessage,
+    save: saveProfile,
+    clear: clearProfile,
+  } = useBirthProfile(theme, initial);
   const [view, setView] = useState<"input" | "result">("input");
   const [report, setReport] = useState<ReadingPreview | null>(null);
   const [reportInput, setReportInput] = useState<BirthInput | null>(null);
@@ -129,6 +141,7 @@ export default function ReadingExperience({
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || !profileReady) return;
     setBusy(true);
     setError("");
     try {
@@ -151,6 +164,7 @@ export default function ReadingExperience({
         );
       setReport(data);
       setReportInput(submittedInput);
+      saveProfile();
       setFull(null);
       setView("result");
     } catch (err) {
@@ -210,7 +224,7 @@ export default function ReadingExperience({
     setReport(null);
     setReportInput(null);
     setFull(null);
-    setInput({ ...initial, theme });
+    clearProfile();
     setStoryPath(null);
     setActiveChapter(0);
     setView("input");
@@ -433,8 +447,44 @@ export default function ReadingExperience({
                       ? "알고 있는 MBTI를 함께 선택해주세요."
                       : "관심 장면은 위에서 선택할 수 있어요."}
               </p>
+              {savedProfile && (
+                <div className="saved-profile">
+                  <span className="saved-profile-kicker">
+                    기억해 둔 내 정보
+                  </span>
+                  <strong>저장된 내 정보를 불러왔어요.</strong>
+                  <p>
+                    필요한 정보만 수정하고 바로 읽어보세요.
+                    {theme === "mbti" && !input.mbti
+                      ? " MBTI 유형만 추가로 선택하면 돼요."
+                      : ""}
+                  </p>
+                  <div className="saved-profile-actions">
+                    <small>
+                      {new Intl.DateTimeFormat("ko-KR", {
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      }).format(savedProfile.expiresAt)}
+                      까지 기억해요
+                    </small>
+                    <button
+                      className="text-button"
+                      type="button"
+                      onClick={() => {
+                        clearProfile();
+                        inputRef.current?.focus();
+                      }}
+                      disabled={busy}
+                    >
+                      저장된 정보 삭제
+                    </button>
+                  </div>
+                </div>
+              )}
               <form onSubmit={submit}>
-                <fieldset disabled={busy}>
+                <fieldset disabled={busy || !profileReady}>
                   <div className="field">
                     <label htmlFor="nickname">
                       별명 <span className="optional">선택</span>
@@ -575,6 +625,27 @@ export default function ReadingExperience({
                       </small>
                     </div>
                   )}
+                  <div className="remember-profile">
+                    <label className="check-row">
+                      <input
+                        type="checkbox"
+                        checked={remember}
+                        onChange={(e) => changeRemember(e.target.checked)}
+                        aria-describedby="remember-profile-help"
+                      />
+                      이 브라우저에 내 정보 24시간 기억하기
+                    </label>
+                    <p id="remember-profile-help">
+                      무료 요약을 읽으면 출생정보와 선택한 MBTI를 기억해요. 같은
+                      브라우저에서 다른 콘텐츠를 볼 때 다시 입력하지 않아도
+                      돼요. 공용 기기에서는 꺼주세요.
+                    </p>
+                  </div>
+                  {storageMessage && (
+                    <p className="profile-status" role="status">
+                      {storageMessage}
+                    </p>
+                  )}
                   <details className="input-policy">
                     <summary>입력 정보와 계산 기준</summary>
                     <p>
@@ -585,11 +656,20 @@ export default function ReadingExperience({
                     </p>
                     <p>
                       {publicDemo
-                        ? "이 무료 체험은 요청할 때마다 서버에서 결과를 계산하며, 앱 데이터베이스·서버 저장소·쿠키에 출생정보와 리포트를 보관하지 않습니다. 입력과 결과는 현재 화면에만 남고 새로고침하면 초기화됩니다. 전체 체험 시 같은 입력을 한 번 더 전송합니다."
+                        ? "이 무료 체험은 요청할 때마다 서버에서 결과를 계산하며, 앱 데이터베이스·서버 저장소·쿠키에 출생정보와 리포트를 보관하지 않습니다. 전체 체험 시 같은 입력을 한 번 더 전송합니다."
                         : "출생정보·선택 유형·관심 장면은 서버에서 처리되며, 리포트는 최대 1시간 임시 보관합니다."}{" "}
                       기본 해설은 외부 AI나 광고 서비스로 전송하지 않습니다.
                       연애 사주의 AI 상담을 별도로 요청하면, 전송 항목을
                       안내하고 동의받은 뒤 OpenAI로 상담 정보를 전송합니다.
+                    </p>
+                    <p>
+                      ‘내 정보 기억하기’를 켜면 무료 요약을 읽은 시점부터 24시간
+                      동안 별명·성별·생년월일·양력/음력·윤달 여부·출생 시간·한국
+                      출생 기준·선택한 MBTI를 이 브라우저에 보관해요. 기간이
+                      지나면 다시 불러오지 않으며, 입력 화면을 열 때 만료된
+                      정보를 정리해요. 저장을 끄거나 ‘저장된 정보 삭제’로 지울
+                      수 있어요. 상담 질문·체험 코드·동의 여부·결과는 저장하지
+                      않으며, 새로고침하면 결과 화면은 초기화돼요.
                     </p>
                   </details>
                   {error && (
@@ -621,6 +701,21 @@ export default function ReadingExperience({
                   {product.name} · {full ? "전체 체험" : "무료 해설"}
                 </span>
               </div>
+              {storageMessage && (
+                <p className="profile-status" role="status">
+                  {storageMessage}
+                </p>
+              )}
+              <nav className="related-readings" aria-label="다른 콘텐츠 읽기">
+                {READING_THEMES.filter((value) => value !== theme).map(
+                  (value) => (
+                    <Link key={value} href={`/readings/${value}`}>
+                      {READING_PRODUCTS[value].name}
+                      <span aria-hidden="true">↗</span>
+                    </Link>
+                  ),
+                )}
+              </nav>
               <div className="result-hero">
                 <div className="result-scene" aria-hidden="true">
                   <Image

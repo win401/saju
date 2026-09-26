@@ -18,14 +18,47 @@ async function expectNoHorizontalOverflow(page: Page) {
   ).toBe(true);
 }
 
-async function expectNoBirthStorage(page: Page) {
+async function expectBirthStorage(page: Page, mbti: string | null) {
   const stored = await page.evaluate(() => ({
     local: { ...localStorage },
     session: { ...sessionStorage },
     cookies: document.cookie,
   }));
-  expect(JSON.stringify(stored)).not.toContain("2000-01-07");
-  expect(JSON.stringify(stored)).not.toContain("배포테스터");
+  expect(Object.keys(stored.local)).toEqual(["gyeol.birth-profile.v1"]);
+  const saved = JSON.parse(stored.local["gyeol.birth-profile.v1"]);
+  expect(Object.keys(saved).sort()).toEqual([
+    "expiresAt",
+    "profile",
+    "savedAt",
+    "version",
+  ]);
+  expect(saved.version).toBe(1);
+  expect(saved.expiresAt - saved.savedAt).toBe(24 * 60 * 60 * 1000);
+  expect(saved.profile).toEqual({
+    nickname: "배포테스터",
+    gender: "female",
+    birthDate: "2000-01-07",
+    calendar: "solar",
+    leapMonth: false,
+    birthTime: "12:00",
+    mbti,
+    location: "KR",
+  });
+  expect(stored.session).toEqual({});
+  expect(stored.cookies).toBe("");
+  expect(
+    (await page.context().cookies()).map(({ name }) => name),
+  ).not.toContain("gyeol_session");
+}
+
+async function expectNoBirthStorage(page: Page) {
+  expect(
+    await page.evaluate(() => ({
+      local: { ...localStorage },
+      session: { ...sessionStorage },
+      cookies: document.cookie,
+    })),
+  ).toEqual({ local: {}, session: {}, cookies: "" });
   expect(
     (await page.context().cookies()).map(({ name }) => name),
   ).not.toContain("gyeol_session");
@@ -86,7 +119,7 @@ for (const theme of themes) {
       page.locator(".reading-prose .narrative-section").first(),
     ).toBeVisible();
     await expect(page.locator(".birth-meta")).toContainText("여성");
-    await expectNoBirthStorage(page);
+    await expectBirthStorage(page, theme.id === "mbti" ? "INFP" : null);
     await expectNoHorizontalOverflow(page);
 
     await page.getByRole("button", { name: "전체 리포트 체험" }).click();
@@ -115,7 +148,7 @@ for (const theme of themes) {
     await expect(page.locator(".chapter-reader h3")).toHaveText(
       theme.lastChapter,
     );
-    await expectNoBirthStorage(page);
+    await expectBirthStorage(page, theme.id === "mbti" ? "INFP" : null);
     await expectNoHorizontalOverflow(page);
     if (testInfo.project.name === "public-mobile")
       await page.screenshot({
