@@ -85,7 +85,7 @@ for (const theme of themes) {
     if (theme.id === "traditional" && testInfo.project.name === "public-mobile")
       await page.screenshot({
         path: testInfo.outputPath("mobile-home.png"),
-        fullPage: true,
+        fullPage: false,
       });
 
     await page.locator(`a[href="/readings/${theme.id}"]`).first().click();

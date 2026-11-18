@@ -14,7 +14,22 @@
 - 이전에 로컬 시안으로 남아 있던 여울의 인물·배경 레이어 모션을 포함했다.
 - README에 실행법·기술 구성·구현 한계·이력서 문장 예시를 정리했다.
 
-로컬 검증: TypeScript·단위 테스트 263개·production 빌드 통과. production 서버에 대해 모바일·데스크톱 공개 E2E 36개 통과. 샘플 비저장·기존 프로필 보존·전체 읽기·실패 복구·AI 예시의 외부 요청 없음과 모의 AI 응답을 검증했다. 실제 유료 OpenAI 호출은 하지 않았다. 배포 결과는 배포 후 별도 기록한다.
+검증 결과:
+
+- TypeScript·단위 테스트 263개·production 빌드 통과.
+- 로컬 production 서버의 공개 E2E 36개, 기존 로컬 모의 주문 흐름 E2E 12개 통과.
+- 실제 대표 주소의 모바일·데스크톱 공개 E2E 36개 통과. 샘플 비저장·기존 프로필 보존·전체 읽기·실패 복구·AI 예시의 외부 요청 없음과 모의 AI 응답을 검증했다.
+- AI 자동 검증은 모의 응답을 사용했다. 이번 작업에서 실제 유료 OpenAI 호출·실제 답변 품질·청구액은 검증하지 않았다.
+
+배포 결과:
+
+- 소스 커밋: `cdbc61c` (`main`), GitHub push로 production 자동 배포.
+- 배포 ID: `dpl_7q4VXGhBBAWhU4bgUnAspMWVuiwC`, 2026-11-18 10:16 KST 생성, Ready 확인.
+- 대표 주소: [결 포트폴리오 데모](https://gyeol-saju-two.vercel.app/).
+- 고정 배포 주소: [검증한 배포](https://gyeol-saju-mltoxorjg-401s-projects-3a87049c.vercel.app/).
+- 공개 메인의 캐릭터 레이어·모션 정지 버튼·샘플 진입을 시각 확인했다. [모바일 화면 기록](screenshots/portfolio-home-mobile.png).
+
+모바일 자동 검증은 Chromium의 iPhone 13 화면 설정으로 진행했다. 실제 iOS Safari·Android 기기 검증과 구분한다.
 
 ## 배포 대상과 실행 위치
 
