@@ -1,3 +1,4 @@
+import { koreanParticle } from "../../../lib/korean-particle";
 import {
   analyzeChart,
   type PillarFact,
@@ -176,13 +177,13 @@ function rootEvidence(pillar: PillarFact): ReadingEvidence {
   return {
     kind: "chart",
     label: `${pillar.label}의 지장간 해석 단서`,
-    detail: `${pillar.branch}의 지장간 ${pillar.hiddenStems.map(stemText).join("·")} 중 표의 첫 글자 ${stemText(pillar.hiddenStems[0])}를 이번 문안의 출발점으로 사용합니다. 이 순서로 개인 원국의 강약을 정한 것은 아닙니다.`,
+    detail: `${pillar.branch}의 지장간 ${pillar.hiddenStems.map(stemText).join("·")} 중 표의 첫 글자에서 이번 해석을 시작합니다. 여기서는 ${stemText(pillar.hiddenStems[0])}입니다. 이 순서로 개인 원국의 강약을 정한 것은 아닙니다.`,
   };
 }
 
 function rootSource(pillar: PillarFact): string {
   const root = pillar.hiddenStems[0];
-  return `${pillar.label} ${pillar.hanja}의 지지 ${pillar.branch}에는 ${root.hanja}(${root.korean})가 담겨 있고, 일간과의 관계는 ${root.tenGod}입니다.`;
+  return `${pillar.label} ${pillar.hanja}의 지지 ${pillar.branch}에는 ${root.hanja}(${root.korean})${koreanParticle(root.korean, "이/가")} 담겨 있고, 일간과의 관계는 ${root.tenGod}입니다.`;
 }
 
 type GodOccurrence = {
@@ -208,7 +209,7 @@ function occurrences(facts: SajuAnalysis): GodOccurrence[] {
 }
 
 function relationText(relation: SajuAnalysis["relations"][number]): string {
-  return `${PILLAR_LABELS[relation.pillars[0]]} ${relation.branches[0]}와 ${PILLAR_LABELS[relation.pillars[1]]} ${relation.branches[1]}의 ${relation.kind === "six-combination" ? "육합" : "충"}`;
+  return `${PILLAR_LABELS[relation.pillars[0]]} ${relation.branches[0]} · ${PILLAR_LABELS[relation.pillars[1]]} ${relation.branches[1]} 사이의 ${relation.kind === "six-combination" ? "육합" : "충"}`;
 }
 
 function relationsNarrative(facts: SajuAnalysis): string {
@@ -217,7 +218,7 @@ function relationsNarrative(facts: SajuAnalysis): string {
   );
   const clashes = facts.relations.filter((item) => item.kind === "clash");
   const observed = facts.relations.length
-    ? `확정된 지지 사이에는 ${facts.relations.map(relationText).join(", ")}이 표시됩니다.`
+    ? `확정된 지지 사이에는 다음 관계가 확인됩니다. ${facts.relations.map(relationText).join(", ")}.`
     : "이번에 확정된 지지 사이에서는 이 리포트가 확인하는 육합과 충의 짝이 관측되지 않았습니다.";
   const reading =
     combinations.length && clashes.length
@@ -294,7 +295,7 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
         {
           kind: "chart",
           label: "월지의 계절 구분",
-          detail: `확정된 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})를 ${facts.season.name} 구간으로 설명합니다. 월지 구분은 오행 강약 점수가 아닙니다.`,
+          detail: `확정된 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})${koreanParticle(facts.season.monthBranchKorean, "을/를")} ${facts.season.name} 구간으로 설명합니다. 월지 구분은 오행 강약 점수가 아닙니다.`,
         },
       ]
     : [];
@@ -312,10 +313,10 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
   const rootBasis = rootEvidence(rootPillar);
   const innerBasis = rootEvidence(day);
   const visibleSummary = visible.length
-    ? `일간을 제외한 천간에는 ${visible.map((pillar) => `${pillar.label} ${stemText(pillar.stem)}`).join(", ")}가 놓입니다. 이 중 ${expressionSource}의 표현을 먼저 풀어볼게요.`
-    : `일간 외의 천간은 아직 확정되지 않았습니다. 없는 천간을 추정하지 않고 ${expressionSource}로 문안의 출발점을 옮겼습니다.`;
+    ? `일간을 제외한 천간의 구성입니다. ${visible.map((pillar) => `${pillar.label} ${stemText(pillar.stem)}`).join(", ")}. 이 중 ${expressionSource}의 표현을 먼저 풀어볼게요.`
+    : `일간 외의 천간은 아직 확정되지 않았습니다. 없는 천간을 추정하지 않고 ${expressionSource}에서 풀이를 시작했습니다.`;
   const seasonBody = facts.season
-    ? `월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})는 ${facts.season.name} 구간으로 구분합니다. ${SEASON_CONTEXT[facts.season.name]}`
+    ? `월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})${koreanParticle(facts.season.monthBranchKorean, "은/는")} ${facts.season.name} 구간으로 구분합니다. ${SEASON_CONTEXT[facts.season.name]}`
     : "월주가 확정되지 않아 태어난 달의 계절 배경은 붙이지 않았습니다. 절기가 바뀌는 날에 시각을 모르면 월지가 달라질 수 있으므로, 날짜만 보고 계절의 기둥을 하나로 고르지 않습니다. 현재 확정된 일간과 일지로 읽을 수 있는 내용은 이어지지만 계절을 사용하는 해석은 남겨 둡니다.";
 
   const intro = makeChapter({
@@ -338,10 +339,10 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
     sections: [
       {
         title: "숫자가 보여 주는 것",
-        body: `${known}에서 천간 한 글자와 지지의 대표 오행 한 글자를 각각 셌습니다. 지지 안의 지장간을 별도로 더한 숫자는 아닙니다. ${absent.length ? `${absent.join("·")}은 표면 집계에서 0개이지만 해당 성향이나 능력이 없다는 판정은 아닙니다.` : "다섯 오행이 모두 집계되지만 이것만으로 완벽하게 균형 잡힌 원국이라고 정하지는 않습니다."} 숫자가 많고 적은 사실과 실제 사주에서 어떤 역할을 하는가는 나누어 보아야 합니다.`,
+        body: `${known}에서 천간 한 글자와 지지의 대표 오행 한 글자를 각각 셌습니다. 지지 안의 지장간을 별도로 더한 숫자는 아닙니다. ${absent.length ? `${absent.join("·")}${koreanParticle(absent.at(-1)!, "은/는")} 표면 집계에서 0개이지만 해당 성향이나 능력이 없다는 판정은 아닙니다.` : "다섯 오행이 모두 집계되지만 이것만으로 완벽하게 균형 잡힌 원국이라고 정하지는 않습니다."} 숫자가 많고 적은 사실과 실제 사주에서 어떤 역할을 하는가는 나누어 보아야 합니다.`,
       },
       {
-        title: `일간의 ${facts.dayMaster.element}을 중심에 놓으면`,
+        title: `일간의 ${facts.dayMaster.element}${koreanParticle(facts.dayMaster.element, "을/를")} 중심에 놓으면`,
         body: ELEMENT_VIEW[facts.dayMaster.element],
       },
       {
@@ -386,18 +387,18 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
   const rootVersusExpression = !visible.length
     ? `다른 천간이 확정되지 않아 같은 일지의 ${rootGod} 단서를 재능과 배움이라는 두 문맥으로 읽었습니다. 무엇을 잘 표현하는지와 어떤 과정으로 익히는지를 나누어 보면, 하나의 키워드 안에서도 결과를 내는 순간과 준비하는 순간이 다른 모습으로 이어질 수 있습니다.`
     : rootGod === expressionGod
-      ? `표현과 배움의 자리에서 모두 ${rootGod}를 만납니다. 같은 주제가 밖으로 보여주는 방식과 안에서 준비하는 방식에 이어지는 모습입니다. 잘하는 것을 더 익히며 안정감을 얻을 수 있지만, 익숙한 방식만으로 해결하기 어려운 상황에서는 다른 사람의 접근법을 받아들이는 여지가 새로운 시도를 도울 수 있습니다.`
-      : `표출의 단서는 ${expressionGod}, 바탕의 단서는 ${rootGod}로 서로 다릅니다. ${FAMILY_ROLES[GOD_FAMILY[expressionGod]]}과 ${FAMILY_ROLES[GOD_FAMILY[rootGod]]}이 한 원국에 함께 있는 셈입니다. ${FAMILY_CONNECTIONS.find(({ pair }) => pair.includes(GOD_FAMILY[expressionGod]) && pair.includes(GOD_FAMILY[rootGod]) && GOD_FAMILY[expressionGod] !== GOD_FAMILY[rootGod])?.text ?? "같은 계열 안에서도 음양이 다른 두 십성은 표현의 결이 달라집니다. 밖으로 결과를 보여주는 방식과 안에서 충분히 익히는 방식이 꼭 같을 필요는 없어요. 그 차이가 내가 잘하는 일을 지속할 수 있는 조건을 찾는 실마리가 됩니다."}`;
+      ? `표현과 배움의 자리에서 모두 ${rootGod}${koreanParticle(rootGod, "을/를")} 만납니다. 같은 주제가 밖으로 보여주는 방식과 안에서 준비하는 방식에 이어지는 모습입니다. 잘하는 것을 더 익히며 안정감을 얻을 수 있지만, 익숙한 방식만으로 해결하기 어려운 상황에서는 다른 사람의 접근법을 받아들이는 여지가 새로운 시도를 도울 수 있습니다.`
+      : `표출의 단서는 ${expressionGod}, 바탕의 단서는 ${rootGod}${koreanParticle(rootGod, "으로/로")} 서로 다릅니다. ${FAMILY_ROLES[GOD_FAMILY[expressionGod]]}과 ${FAMILY_ROLES[GOD_FAMILY[rootGod]]}이 한 원국에 함께 있는 셈입니다. ${FAMILY_CONNECTIONS.find(({ pair }) => pair.includes(GOD_FAMILY[expressionGod]) && pair.includes(GOD_FAMILY[rootGod]) && GOD_FAMILY[expressionGod] !== GOD_FAMILY[rootGod])?.text ?? "같은 계열 안에서도 음양이 다른 두 십성은 표현의 결이 달라집니다. 밖으로 결과를 보여주는 방식과 안에서 충분히 익히는 방식이 꼭 같을 필요는 없어요. 그 차이가 내가 잘하는 일을 지속할 수 있는 조건을 찾는 실마리가 됩니다."}`;
   const hiddenDescription = day.hiddenStems.map(stemText).join(" · ");
   const innerLayers =
     day.hiddenStems.length > 1
-      ? `일지 ${day.branch}의 지장간에는 ${hiddenDescription}가 함께 있습니다. 첫 글자로 ${innerGod}의 문안을 열었지만 나머지 글자가 사라지는 것은 아닙니다. ${[...new Set(day.hiddenStems.map((stem) => GOD_FAMILY[stem.tenGod]))].map((family) => FAMILY_ROLES[family]).join("과 ")}이라는 관점이 같은 자리의 다른 면으로 놓입니다.`
+      ? `일지 ${day.branch}의 지장간은 ${hiddenDescription}입니다. 첫 글자로 ${innerGod}의 문안을 열었지만 나머지 글자가 사라지는 것은 아닙니다. ${[...new Set(day.hiddenStems.map((stem) => GOD_FAMILY[stem.tenGod]))].map((family) => FAMILY_ROLES[family]).join("과 ")}이라는 관점이 같은 자리의 다른 면으로 놓입니다.`
       : `일지 ${day.branch}의 지장간은 ${hiddenDescription} 한 글자로 구성됩니다. 이 표에서 내용이 한 가지라는 사실을 실제 성격이 단순하다는 뜻으로 바꾸지는 않습니다. 일지의 단서와 다른 기둥의 천간은 서로 다른 자리의 정보를 제공하므로, 같은 사람에게도 상황에 따라 드러나는 방식이 달라질 여지가 있습니다.`;
 
   const chapters = [
     makeChapter({
       title: "십성으로 읽는 나의 재능",
-      lead: `십성은 열 가지 사람 유형이 아니라 일간 ${facts.dayMaster.hanja}를 기준으로 다른 천간이 맺는 열 가지 관계입니다. 이번에는 ${expressionGod}의 표출과 ${rootGod}의 바탕을 출발점으로 재능의 결을 읽습니다.`,
+      lead: `십성은 열 가지 사람 유형이 아니라 다른 천간이 일간 ${facts.dayMaster.hanja}${koreanParticle(facts.dayMaster.korean, "과/와")} 맺는 열 가지 관계입니다. 이번에는 ${expressionGod}의 표출과 ${rootGod}의 바탕을 출발점으로 재능의 결을 읽습니다.`,
       sections: [
         {
           title: "십성의 이름이 붙는 원리",
@@ -417,12 +418,12 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
           body: `확정된 천간과 지장간에서 읽히는 십성은 ${godNames.join("·")}입니다. 천간의 일간 자체는 비교의 기준이므로 여기서 다른 재능 한 개로 더 세지 않았습니다. 지장간은 지지 안에 들어 있는 천간의 구성표이며, 표에 있다는 이유만으로 모든 역할이 같은 크기로 드러난다고 보지 않습니다. 한 가지 이름으로 재능 전체를 닫지 않는 이유가 여기에 있습니다.`,
         },
       ],
-      question: `${expressionGod}로 드러내고 ${rootGod}로 받치는 재능. 결과를 내는 방식과 그 결과를 준비하는 방식을 함께 읽어보세요.`,
+      question: `${expressionGod}${koreanParticle(expressionGod, "으로/로")} 드러내고 ${rootGod}${koreanParticle(rootGod, "으로/로")} 받치는 재능. 결과를 내는 방식과 그 결과를 준비하는 방식을 함께 읽어보세요.`,
       evidence: capacityEvidence,
     }),
     makeChapter({
       title: "일과 재물을 대하는 방식",
-      lead: `일의 장에서는 ${rootPillar.label}의 ${rootGod}를 일하는 바탕으로, ${expressionSource}를 자원을 다루는 관점으로 읽습니다. 직업명이나 수입을 정하기보다 일을 만들고 유지하는 방식에 초점을 둡니다.`,
+      lead: `일의 장에서는 ${rootPillar.label}의 ${rootGod}${koreanParticle(rootGod, "을/를")} 일하는 바탕으로, 표출 단서인 ${expressionSource}${koreanParticle(expressionGod, "을/를")} 자원을 다루는 관점으로 읽습니다. 직업명이나 수입을 정하기보다 일을 만들고 유지하는 방식에 초점을 둡니다.`,
       sections: [
         {
           title: "일을 맡고 이어 가는 바탕",
@@ -452,7 +453,7 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
     }),
     makeChapter({
       title: "사람 사이에서 드러나는 나",
-      lead: `이번 장에서는 일지 ${day.branch}의 ${innerGod}와 ${expressionSource}를 서로 다른 대인관계의 단서로 읽습니다. 실제 주변 사람의 성격을 추정하는 대신 내 원국 안에 놓인 역할과 연결의 모양을 살펴봅니다.`,
+      lead: `이번 장에서는 일지의 ${innerGod}${koreanParticle(innerGod, "과/와")} 표출 단서인 ${expressionSource}${koreanParticle(expressionGod, "을/를")} 서로 다른 대인관계의 단서로 읽습니다. 실제 주변 사람의 성격을 추정하는 대신 내 원국 안에 놓인 역할과 연결의 모양을 살펴봅니다.`,
       sections: [
         {
           title: "가까운 생활에서 사용하는 관계의 언어",
@@ -460,7 +461,7 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
         },
         {
           title: "여럿이 함께할 때 더해지는 관점",
-          body: `${expressionSource}는 ${GOD_FAMILY[expressionGod]}에 속합니다. ${FAMILY_SOCIAL[GOD_FAMILY[expressionGod]]}`,
+          body: `표출 단서인 ${expressionSource}${koreanParticle(expressionGod, "은/는")} ${GOD_FAMILY[expressionGod]}에 속합니다. ${FAMILY_SOCIAL[GOD_FAMILY[expressionGod]]}`,
         },
         { title: "지지에 놓인 연결과 차이", body: relationsNarrative(facts) },
         {
@@ -480,11 +481,11 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
     }),
     makeChapter({
       title: "내 사주를 하나의 이야기로",
-      lead: `일간 ${facts.dayMaster.hanja}의 이미지에서 시작해 오행의 구성, 십성의 역할, 지지 사이의 관계까지 이어 읽었습니다. 마지막에는 서로 다른 이름을 모아 ${portrait.image}라는 첫 장면에 더 구체적인 맥락을 붙입니다.`,
+      lead: `일간 ${facts.dayMaster.hanja}의 이미지에서 시작해 오행의 구성, 십성의 역할, 지지 사이의 관계까지 이어 읽었습니다. 마지막에는 서로 다른 이름을 모아 ‘${portrait.image}’${koreanParticle(portrait.image, "이라는/라는")} 첫 장면에 더 구체적인 맥락을 붙입니다.`,
       sections: [
         {
           title: "중심은 일간, 내용은 원국 전체",
-          body: `일간은 ${facts.dayMaster.polarity}·${facts.dayMaster.element}인 ${facts.dayMaster.hanja}이고, 이를 기준으로 읽은 원국은 ${known}입니다. 같은 일간을 가진 사람이 모두 같은 결과를 받는 것은 아닙니다. 함께 놓인 천간의 십성, 지지 안의 구성, 월지의 배경이 달라지기 때문입니다. 첫 장의 성향은 출발점이고 이후의 기둥들이 그 성향을 어떤 관점으로 더 읽을지 알려 주는 재료가 됩니다.`,
+          body: `일간은 ${facts.dayMaster.polarity}·${facts.dayMaster.element}인 ${facts.dayMaster.hanja}입니다. 이를 기준으로 읽은 원국은 ${known}입니다. 같은 일간을 가진 사람이 모두 같은 결과를 받는 것은 아닙니다. 함께 놓인 천간의 십성, 지지 안의 구성, 월지의 배경이 달라지기 때문입니다. 첫 장의 성향은 출발점이고 이후의 기둥들이 그 성향을 어떤 관점으로 더 읽을지 알려 주는 재료가 됩니다.`,
         },
         {
           title: facts.season
@@ -492,10 +493,10 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
             : "확정된 자리에서 이어 가는 해석",
           body: facts.season
             ? `월지 ${facts.season.monthBranch}의 ${facts.season.name} 배경을 다시 연결해 볼 수 있습니다. ${SEASON_SYNTHESIS[facts.season.name]}`
-            : `월주가 확정되지 않은 현재는 ${day.hanja} 일주와 그 안의 ${hiddenDescription}를 중심으로 이야기의 연결점을 잡았습니다. 계절의 힘을 가정하거나 알려지지 않은 월간에 십성 이름을 붙이지 않았습니다. 같은 날짜라도 시각이 확인되면 원국의 다른 자리와 연결해 읽을 수 있으므로, 현재 문안은 알려진 부분에서만 완성한 해석입니다.`,
+            : `월주가 확정되지 않은 현재는 ${day.hanja} 일주와 그 안의 지장간(${hiddenDescription})을 중심으로 이야기의 연결점을 잡았습니다. 계절의 힘을 가정하거나 알려지지 않은 월간에 십성 이름을 붙이지 않았습니다. 같은 날짜라도 시각이 확인되면 원국의 다른 자리와 연결해 읽을 수 있으므로, 현재 문안은 알려진 부분에서만 완성한 해석입니다.`,
         },
         {
-          title: `${rootGod}가 이야기의 바탕에 놓일 때`,
+          title: `${rootGod}${koreanParticle(rootGod, "이/가")} 이야기의 바탕에 놓일 때`,
           body: `${rootSource(rootPillar)} ${rootReading.integration}`,
         },
         {
@@ -555,7 +556,7 @@ export function createTraditionalReport(_input: BirthInput, chart: Chart) {
     {
       id: "traditional.synthesis",
       section: "synthesis",
-      condition: `확정 일간·${rootPillar.label} 첫 지장간·일지 단서를 종합; 월지 ${facts.season?.monthBranch ?? "미확정"}, 시간 ${hour?.stem.hanja ?? "미확정"}은 확정된 경우에만 사용. MBTI·성별·고민 선택은 문안에 사용하지 않음.`,
+      condition: `확정 일간·${rootPillar.label} 첫 지장간·일지 단서를 종합; 월지와 시간은 확정된 경우에만 사용. 월지 ${facts.season?.monthBranch ?? "미확정"}, 시간 ${hour?.stem.hanja ?? "미확정"}. MBTI·성별·고민 선택은 문안에 사용하지 않음.`,
       evidence: chapters[3].evidence,
     },
   ];

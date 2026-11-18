@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MBTI_TYPES } from "@/lib/birth-schema";
+import { koreanParticle } from "@/lib/korean-particle";
 import { formatPrice, READING_PRODUCTS } from "./catalog";
 import ExplanationBasis from "./ExplanationBasis";
 import ChapterNarrative from "./ChapterNarrative";
@@ -389,8 +390,8 @@ export default function ReadingExperience({
               <div>
                 <strong>입력 없이 먼저 둘러보세요</strong>
                 <p>
-                  가상의 출생정보로 {product.name}를 읽어요. 저장된 내 정보는
-                  바뀌지 않아요.
+                  가상의 출생정보로 {product.name} 결과를 읽어요. 저장된 내
+                  정보는 바뀌지 않아요.
                 </p>
               </div>
               <button
@@ -483,7 +484,7 @@ export default function ReadingExperience({
               <p className="muted card-description">
                 이름 대신 별명으로도 충분해요.{" "}
                 {chosenPath
-                  ? `‘${chosenPath.title}’을 먼저 읽어요.`
+                  ? `‘${chosenPath.title}’${koreanParticle(chosenPath.title, "을/를")} 먼저 읽어요.`
                   : theme === "traditional"
                     ? "MBTI 없이 출생정보로 사주를 읽어요."
                     : theme === "mbti"

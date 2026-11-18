@@ -1,4 +1,6 @@
 import "server-only";
+
+import { koreanParticle } from "../../../lib/korean-particle";
 import { calculateChart } from "@/lib/saju";
 import type { BirthInput } from "@/types/reading";
 import {
@@ -42,12 +44,12 @@ export function buildLoveAiContext(
     {
       id: "chart.day-master",
       label: "일간의 분류",
-      detail: `일간 ${day.hanja}(${day.korean})는 ${day.polarity}의 ${day.element}로 분류해요. 이 분류만으로 성격이나 오행의 강약을 판정하지 않아요.`,
+      detail: `일간 ${day.hanja}(${day.korean})${koreanParticle(day.korean, "은/는")} ${day.polarity}의 ${day.element}${koreanParticle(day.element, "으로/로")} 분류해요. 이 분류만으로 성격이나 오행의 강약을 판정하지 않아요.`,
     },
     {
       id: "chart.day-pillar",
       label: "확인된 일주",
-      detail: `확인된 일주는 ${chart.pillars.day.hanja}(${chart.pillars.day.korean})예요. 일지만으로 배우자의 성별·성격·미래를 결정하지 않아요.`,
+      detail: `확인된 일주는 ${chart.pillars.day.hanja}(${chart.pillars.day.korean})입니다. 일지만으로 배우자의 성별·성격·미래를 결정하지 않아요.`,
     },
   ];
   function lens(key: string, finding: Finding) {

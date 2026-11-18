@@ -1,3 +1,4 @@
+import { koreanParticle } from "../../../lib/korean-particle";
 import type {
   BirthInput,
   Chart,
@@ -114,20 +115,20 @@ export function createMbtiReport(input: BirthInput, chart: Chart) {
   const mbtiEvidence: ReadingEvidence = {
     kind: "mbti",
     label: "직접 입력한 유형",
-    detail: `${input.mbti}는 사용자가 알고 있는 유형입니다. 이 서비스에서 검사하거나 출생정보로 추정한 유형이 아닙니다.`,
+    detail: `사용자가 직접 입력한 유형은 ${input.mbti}입니다. 이 서비스에서 검사하거나 출생정보로 추정한 유형이 아닙니다.`,
   };
   const outerEvidence: ReadingEvidence = {
     kind: "chart",
     label: "표현을 읽는 사주 단서",
     detail:
       outer.key === "day"
-        ? `월주 미확정으로 일지 ${day.branch}의 첫 지장간 ${day.hiddenStems[0].hanja}·${outerGod}를 사용합니다.`
-        : `월간 ${outer.stem.hanja}(${outer.stem.korean})는 일간 기준 ${outerGod}입니다.`,
+        ? `월주 미확정으로 일지 ${day.branch}의 첫 지장간 ${day.hiddenStems[0].hanja}·${outerGod}${koreanParticle(outerGod, "을/를")} 사용합니다.`
+        : `월간 ${outer.stem.hanja}(${outer.stem.korean})${koreanParticle(outer.stem.korean, "은/는")} 일간 기준 ${outerGod}입니다.`,
   };
   const innerEvidence: ReadingEvidence = {
     kind: "chart",
     label: "생각의 안쪽을 읽는 단서",
-    detail: `일지 ${day.branch}의 첫 지장간 ${day.hiddenStems[0].hanja}(${day.hiddenStems[0].korean})는 ${innerGod}입니다. 장별 주제를 정하기 위한 편집 선택이며 강약 판정은 아닙니다.`,
+    detail: `일지 ${day.branch}의 첫 지장간 ${day.hiddenStems[0].hanja}(${day.hiddenStems[0].korean})${koreanParticle(day.hiddenStems[0].korean, "은/는")} ${innerGod}입니다. 장별 주제를 정하기 위한 편집 선택이며 강약 판정은 아닙니다.`,
   };
   const definitions = [
     input.mbti[0] === "I"
@@ -206,7 +207,7 @@ export function createMbtiReport(input: BirthInput, chart: Chart) {
           {
             title: "같은 나에게 두 모습이 보이는 장면",
             kind: "scene",
-            body: `${scene}\n\n사주에서 읽은 ‘${lens.keyword}’를 같은 상황에 놓으면 무엇을 중요하게 두고 싶은지 또 다른 질문이 생깁니다. 두 설명이 닮아 보이더라도 같은 이유라고 결론 내리기보다, 실제 행동에서 어느 설명이 가까운지 비교할 수 있어요.`,
+            body: `${scene}\n\n사주에서 읽은 ‘${lens.keyword}’${koreanParticle(lens.keyword, "을/를")} 같은 상황에 놓으면 무엇을 중요하게 두고 싶은지 또 다른 질문이 생깁니다. 두 설명이 닮아 보이더라도 같은 이유라고 결론 내리기보다, 실제 행동에서 어느 설명이 가까운지 비교할 수 있어요.`,
           },
           {
             title: "내 성향을 일상에 쓰는 방법",
@@ -228,16 +229,16 @@ export function createMbtiReport(input: BirthInput, chart: Chart) {
     },
   );
   const comparison = chapter(
-    `${input.mbti}와 ${chart.pillars.day.korean}일주를 나란히 읽으면`,
+    `MBTI 유형 ${input.mbti}, ${chart.pillars.day.korean} 일주와 나란히 읽기`,
     "나는 분명 이런 사람인 줄 알았는데, 다른 상황에서는 다르게 행동했다면.",
     [
       {
         title: "내가 알고 있는 나",
-        body: `입력한 유형은 ${input.mbti}예요. 이 콘텐츠에서는 ${definitions.map((d) => d[0]).join(", ")}의 네 주제를 차례로 읽습니다. 하나의 성격 점수를 만드는 대신, 익숙한 내 모습과 상황에 따라 달라지는 모습을 비교할 자리를 열어요.`,
+        body: `입력한 유형은 ${input.mbti}입니다. 에너지, 관찰, 판단, 일상의 네 주제를 차례로 읽어요. 하나의 성격 점수를 만드는 대신, 익숙한 내 모습과 상황에 따라 달라지는 모습을 비교할 자리를 열어요.`,
       },
       {
         title: "사주에서 찾은 두 단서",
-        body: `${outerEvidence.detail} 여기에 ‘${lenses[outerGod].keyword}’라는 표현의 주제를 붙였어요. 일지에서는 ${innerGod}를 골라 ‘${lenses[innerGod].keyword}’라는 안쪽의 주제로 읽습니다. ${outer.key === "day" ? "월주가 확정되지 않아 같은 일지 단서를 표현과 내면의 두 문맥으로 읽었어요." : outerGod === innerGod ? "같은 십성이 두 자리에 있어도 겉으로 쓰는 방식과 스스로 필요한 방식은 구분해 읽을 수 있어요." : "서로 다른 단어가 있다는 것은 겉으로 쓰는 방식과 스스로 필요한 방식을 구분해 읽을 계기가 됩니다."}`,
+        body: `${outerEvidence.detail} 여기에 표현의 주제 ‘${lenses[outerGod].keyword}’${koreanParticle(lenses[outerGod].keyword, "을/를")} 붙였어요. 일지에서는 ${innerGod}${koreanParticle(innerGod, "을/를")} 골라 내면의 주제인 ‘${lenses[innerGod].keyword}’${koreanParticle(lenses[innerGod].keyword, "으로/로")} 읽습니다. ${outer.key === "day" ? "월주가 확정되지 않아 같은 일지 단서를 표현과 내면의 두 문맥으로 읽었어요." : outerGod === innerGod ? "같은 십성이 두 자리에 있어도 겉으로 쓰는 방식과 스스로 필요한 방식은 구분해 읽을 수 있어요." : "서로 다른 단어가 있다는 것은 겉으로 쓰는 방식과 스스로 필요한 방식을 구분해 읽을 계기가 됩니다."}`,
       },
       {
         title: "두 시선이 만나는 예고편",
@@ -267,7 +268,7 @@ export function createMbtiReport(input: BirthInput, chart: Chart) {
         condition:
           index === 0
             ? "확정된 원국의 일간과 기둥으로 기본 해석"
-            : `${input.mbti}의 입력 선호와 선택 십성 ${outerGod}·${innerGod}를 별도 관점으로 비교`,
+            : `${input.mbti}의 입력 선호와 선택 십성 ${outerGod}·${innerGod}${koreanParticle(innerGod, "을/를")} 별도 관점으로 비교`,
         evidence: item.evidence,
       })),
     },

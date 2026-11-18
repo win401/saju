@@ -6,7 +6,11 @@ import {
   reportVersion,
 } from "../src/features/reading/server/create-report";
 import { READING_PRODUCTS } from "../src/features/reading/catalog";
-import { READING_THEMES, type BirthInput } from "../src/types/reading";
+import {
+  READING_THEMES,
+  RELATIONSHIP_FOCUSES,
+  type BirthInput,
+} from "../src/types/reading";
 
 const input: BirthInput = {
   nickname: "기본",
@@ -140,4 +144,44 @@ describe("independent product contracts", () => {
     );
     expect(new Set(bodies).size).toBe(16);
   });
+
+  it.each(READING_THEMES)(
+    "uses the correct Korean particles in sample and varied %s readings",
+    (theme) => {
+      const examples: Partial<BirthInput>[] = [
+        { focus: null }, // Public demo profile.
+        { birthDate: "2024-02-04", birthTime: null },
+        ...Array.from({ length: 60 }, (_, index) => ({
+          birthDate: new Date(Date.UTC(2000, 2, 7 + index))
+            .toISOString()
+            .slice(0, 10),
+          birthTime: index % 2 === 0 ? "21:00" : null,
+          focus: RELATIONSHIP_FOCUSES[index % RELATIONSHIP_FOCUSES.length],
+          mbti: MBTI_TYPES[index % MBTI_TYPES.length],
+        })),
+      ];
+
+      for (const example of examples) {
+        const content = report({ theme, ...example });
+        const chapters = [
+          content.intro,
+          content.comparison,
+          ...content.chapters,
+        ];
+        const lines = chapters.flatMap((chapter) => [
+          chapter.title,
+          chapter.body,
+          chapter.question,
+          ...chapter.sections!.map((section) => section.title),
+          ...chapter.evidence.map((evidence) => evidence.detail),
+        ]);
+        const wrongEnding =
+          /(?:비견|식신|상관|편관|정관|편인|정인)(?:[는가를와]|로)(?=\s)|(?:겁재|편재|정재)(?:[은이을과]|으로)(?=\s)/u;
+
+        const mistakes = lines.flatMap((line) => line.match(wrongEnding) ?? []);
+        expect(mistakes, JSON.stringify(example)).toEqual([]);
+        expect(lines.join("\n")).not.toMatch(/undefined|NaN/);
+      }
+    },
+  );
 });

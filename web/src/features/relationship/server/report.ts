@@ -1,3 +1,4 @@
+import { koreanParticle } from "../../../lib/korean-particle";
 import type {
   BirthInput,
   Chart,
@@ -107,7 +108,7 @@ export function createReport(input: BirthInput, chart: Chart) {
         {
           kind: "mbti",
           label: "직접 선택한 성격 유형",
-          detail: `${input.mbti}를 사용자가 입력했어요. 출생정보로 유형을 추정하거나 사주와 합산한 점수를 만들지 않았어요.`,
+          detail: `사용자가 입력한 유형은 ${input.mbti}입니다. 출생정보로 유형을 추정하거나 사주와 합산한 점수를 만들지 않았어요.`,
         },
       ]
     : [];
@@ -116,14 +117,14 @@ export function createReport(input: BirthInput, chart: Chart) {
         {
           kind: "focus",
           label: "이번 이야기의 관심 장면",
-          detail: `사용자가 ‘${concern.title}’을 선택했어요. 사주에서 알아낸 고민이 아니라 직접 고른 관심사예요.`,
+          detail: `사용자가 ‘${concern.title}’${koreanParticle(concern.title, "을/를")} 선택했어요. 사주에서 알아낸 고민이 아니라 직접 고른 관심사예요.`,
         },
       ]
     : [];
   const dayEvidence: ReadingEvidence = {
     kind: "chart",
     label: "나를 읽는 기준: 일간",
-    detail: `일주 ${chart.pillars.day.hanja}(${chart.pillars.day.korean}), 일간 ${facts.dayMaster.hanja}(${facts.dayMaster.korean})는 ${facts.dayMaster.polarity}·${facts.dayMaster.element}입니다.`,
+    detail: `일주 ${chart.pillars.day.hanja}(${chart.pillars.day.korean}), 일간 ${facts.dayMaster.hanja}(${facts.dayMaster.korean})${koreanParticle(facts.dayMaster.korean, "은/는")} ${facts.dayMaster.polarity}·${facts.dayMaster.element}입니다.`,
   };
   const portrait = STEM_PORTRAITS[facts.dayMaster.hanja];
   const innerGod = anchors.day.hiddenStems[0].tenGod;
@@ -135,29 +136,29 @@ export function createReport(input: BirthInput, chart: Chart) {
   const innerEvidence: ReadingEvidence = {
     kind: "chart",
     label: "가까운 사이를 읽는 단서: 일지 지장간",
-    detail: `일지 ${anchors.day.branch}의 첫 지장간 ${anchors.day.hiddenStems[0].hanja}(${anchors.day.hiddenStems[0].korean})는 ${innerGod}입니다. 이 글자를 친밀감 이야기의 편집 단서로 골랐어요. 배우자의 성격이나 궁합을 판정한 것은 아닙니다.`,
+    detail: `일지 ${anchors.day.branch}의 첫 지장간 ${anchors.day.hiddenStems[0].hanja}(${anchors.day.hiddenStems[0].korean})${koreanParticle(anchors.day.hiddenStems[0].korean, "은/는")} ${innerGod}입니다. 이 글자를 친밀감 이야기의 편집 단서로 골랐어요. 배우자의 성격이나 궁합을 판정한 것은 아닙니다.`,
   };
   const scene = concern
-    ? `이번에 고른 장면은 ‘${concern.scene}’이에요.`
+    ? `이번에 고른 장면은 ‘${concern.scene}’${koreanParticle(concern.scene, "이에요/예요")}.`
     : "이번 이야기는 설렘이 시작되는 순간부터, 마음을 전하고 차이를 조율하는 순간까지 이어집니다.";
-  const paceSource = `${anchors.pace.label} ${anchors.pace.hanja}의 지지 ${anchors.pace.branch} 안에는 ${anchors.pace.hiddenStems.map((stem) => `${stem.hanja}(${stem.tenGod})`).join("·")}가 있어요. 여기서는 첫 글자의 ${paceGod}를 관계가 가까워지는 방식으로 풀었습니다.`;
+  const paceSource = `${anchors.pace.label} ${anchors.pace.hanja}의 지지 ${anchors.pace.branch} 안의 지장간은 ${anchors.pace.hiddenStems.map((stem) => `${stem.hanja}(${stem.tenGod})`).join("·")}입니다. 여기서는 첫 글자의 ${paceGod}${koreanParticle(paceGod, "을/를")} 관계가 가까워지는 방식으로 풀었습니다.`;
   const voiceSource =
     anchors.expression.key === "day"
       ? `다른 기둥이 확정되지 않아 일지의 지장간 ${outerGod}에서 표현의 단서를 읽어요.`
-      : `${anchors.expression.label} ${anchors.expression.hanja}의 천간 ${anchors.expression.stem.hanja}는 일간 ${facts.dayMaster.hanja}를 기준으로 ${outerGod}에 해당해요.`;
+      : `${anchors.expression.label} ${anchors.expression.hanja}의 천간 ${anchors.expression.stem.hanja}${koreanParticle(anchors.expression.stem.korean, "은/는")} 일간을 기준으로 ${outerGod}에 해당해요.`;
 
   const intro = chapter({
-    title: `${chart.pillars.day.korean}일주, ${IMAGES[chart.dayElement]}의 이미지`,
+    title: `${chart.pillars.day.korean} 일주, ${IMAGES[chart.dayElement]}의 이미지`,
     lead: portrait.headline,
     sections: [
       {
         title: `${facts.dayMaster.korean}(${facts.dayMaster.hanja}), ${portrait.image}`,
-        body: `나를 읽는 기준인 일간은 ${facts.dayMaster.hanja}(${facts.dayMaster.korean}), ${facts.dayMaster.polarity}의 ${chart.dayElement}입니다. 태어난 날의 두 글자를 함께 부르면 ${chart.pillars.day.korean}일주예요.\n\n${portrait.portrait}`,
+        body: `나를 읽는 기준인 일간은 ${facts.dayMaster.hanja}(${facts.dayMaster.korean}), ${facts.dayMaster.polarity}의 ${chart.dayElement}입니다. 태어난 날의 두 글자를 함께 부르면 ${chart.pillars.day.korean} 일주예요.\n\n${portrait.portrait}`,
       },
       { title: "관계 안에서 빛나는 매력", body: portrait.charm },
       {
         title: "겉으로 보이는 나, 가까워진 뒤의 나",
-        body: `일간이 첫 이미지라면, 일지 ${anchors.day.branch} 속 첫 지장간 ${anchors.day.hiddenStems[0].hanja}의 ${innerGod}는 가까운 사이를 읽는 또 하나의 단서예요. ${inner.meaning}\n\n${portrait.tension}`,
+        body: `일간이 첫 이미지라면, 일지 ${anchors.day.branch} 속 첫 지장간 ${anchors.day.hiddenStems[0].hanja}의 ${innerGod}${koreanParticle(innerGod, "은/는")} 가까운 사이를 읽는 또 하나의 단서예요. ${inner.meaning}\n\n${portrait.tension}`,
       },
       {
         title: "여울이 건네는 첫 장의 말",
@@ -174,8 +175,8 @@ export function createReport(input: BirthInput, chart: Chart) {
   const comparison = chapter(
     preference
       ? {
-          title: `${input.mbti}와 ${chart.pillars.day.korean}일주를 나란히 읽으면`,
-          lead: `보이는 표현과 속으로 바라는 것이 같을까요? ‘${expression.title}’을 ${input.mbti}의 시선과 함께 읽어볼게요.`,
+          title: `MBTI 유형 ${input.mbti}, ${chart.pillars.day.korean} 일주와 나란히 읽기`,
+          lead: `보이는 표현과 속으로 바라는 것이 같을까요? ‘${expression.title}’${koreanParticle(expression.title, "을/를")} ${input.mbti}의 시선과 함께 읽어볼게요.`,
           sections: [
             {
               title: "사주가 붙여준 표현의 키워드",
@@ -210,7 +211,7 @@ export function createReport(input: BirthInput, chart: Chart) {
             input.theme === "love"
               ? "겉으로 전하는 마음과 가까운 사이의 나"
               : "유형을 몰라도, 나의 이야기는 계속됩니다",
-          lead: `첫인상만으로 다 설명되지 않는 마음. ${chart.pillars.day.korean}일주 안쪽의 이야기를 한 겹 더 읽어볼게요.`,
+          lead: `첫인상만으로 다 설명되지 않는 마음. ${chart.pillars.day.korean} 일주 안쪽의 이야기를 한 겹 더 읽어볼게요.`,
           sections: [
             {
               title: "마음을 드러내는 쪽의 단서",
@@ -218,14 +219,14 @@ export function createReport(input: BirthInput, chart: Chart) {
             },
             {
               title: "가까운 사이에서 바라는 것",
-              body: `일지 ${anchors.day.branch}의 ${innerGod}를 친밀감의 관점으로 옮기면 다음과 같은 이야기가 됩니다. ${inner.need}`,
+              body: `일지 ${anchors.day.branch}의 ${innerGod}${koreanParticle(innerGod, "을/를")} 친밀감의 관점으로 옮기면 다음과 같은 이야기가 됩니다. ${inner.need}`,
             },
             {
               title: "표현과 기대가 만나는 자리",
               body:
                 outerGod === innerGod
-                  ? `이번에 선택한 표현의 단서와 일지의 단서는 모두 ${innerGod}로 만납니다. 같은 단어를 두 자리에서 읽지만, 하나는 마음을 건네는 방식이고 다른 하나는 관계에서 편안함을 찾는 질문이에요. 내가 좋아서 해준 방식을 상대도 좋아할 것이라 여기기 쉬운 장면을 생각할 수 있습니다. 닮은 표현에도 각자가 바라는 반응은 다를 수 있죠.`
-                  : `표현에서는 ${outerGod}, 가까운 사이의 단서에서는 ${innerGod}를 골랐어요. 서로 다른 키워드를 가졌다는 것은 이 이야기 안에서 ‘내가 건네는 방식’과 ‘돌려받고 싶은 방식’을 구분해 읽을 기회가 됩니다. 먼저 약속을 잡는 행동이 내 표현이어도, 돌아오는 답에서는 일정의 확정보다 반가운 한마디를 기대하는 식의 차이예요.`,
+                  ? `이번에 선택한 표현의 단서와 일지의 단서는 모두 ${innerGod}${koreanParticle(innerGod, "으로/로")} 만납니다. 같은 단어를 두 자리에서 읽지만, 하나는 마음을 건네는 방식이고 다른 하나는 관계에서 편안함을 찾는 질문이에요. 내가 좋아서 해준 방식을 상대도 좋아할 것이라 여기기 쉬운 장면을 생각할 수 있습니다. 닮은 표현에도 각자가 바라는 반응은 다를 수 있죠.`
+                  : `표현에서는 ${outerGod}, 가까운 사이의 단서에서는 ${innerGod}${koreanParticle(innerGod, "을/를")} 골랐어요. 서로 다른 키워드를 가졌다는 것은 이 이야기 안에서 ‘내가 건네는 방식’과 ‘돌려받고 싶은 방식’을 구분해 읽을 기회가 됩니다. 먼저 약속을 잡는 행동이 내 표현이어도, 돌아오는 답에서는 일정의 확정보다 반가운 한마디를 기대하는 식의 차이예요.`,
             },
             {
               title: "둘 사이에 번역이 필요한 순간",
@@ -239,7 +240,7 @@ export function createReport(input: BirthInput, chart: Chart) {
   );
 
   const season = facts.season
-    ? `태어난 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})는 이번 계절 구분에서 ${facts.season.name}에 놓입니다. 계절은 이 장의 배경으로 두고, 구체적인 관계 이야기는 지장간의 십성에서 이어갈게요.`
+    ? `태어난 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})${koreanParticle(facts.season.monthBranchKorean, "은/는")} 이번 계절 구분에서 ${facts.season.name}에 놓입니다. 계절은 이 장의 배경으로 두고, 구체적인 관계 이야기는 지장간의 십성에서 이어갈게요.`
     : "출생시간이 알려지지 않은 절기 경계라 월주를 확정하지 못했어요. 계절을 추정하지 않고 확인된 일지의 단서로 이 장을 읽습니다.";
   const boundaryStories = {
     "boundary.mixed": {
@@ -273,7 +274,7 @@ export function createReport(input: BirthInput, chart: Chart) {
       title: "마음의 기준을 읽는 또 하나의 단서",
       scene:
         "예를 들어 어디서 만날지 물을 때마다 ‘아무 데나 좋아’라고 답한 장면을 생각해볼게요. 상대는 선택을 존중받는다고 느끼고, 나는 언젠가 내 취향도 먼저 물어주기를 기다릴 수 있어요. 겉으로 다투지 않아도 말하지 않은 기대는 남습니다. 평온한 대화 안에서 누가 결정을 맡고 누가 따라가는지 살피면 다른 이야기가 보이기도 해요.",
-      strength: `확인된 기둥에서 이번 엔진이 다루는 육합·충 쌍을 선택하지 못했어요. 그래서 관계가 순탄하다고 결론 내리지 않고, 일지의 ${innerGod}와 ‘${boundary.title}’이라는 주제로 기준을 읽습니다. 원국에 특정 쌍이 없다는 사실보다 실제 관계에서 무엇을 원하고 어떻게 말하는지가 이 장의 중심이에요.`,
+      strength: `확인된 기둥에서 이번 엔진이 다루는 육합·충 쌍을 선택하지 못했어요. 그래서 관계가 순탄하다고 결론 내리지 않고, 일지의 ${innerGod}${koreanParticle(innerGod, "과/와")} ‘${boundary.title}’${koreanParticle(boundary.title, "이라는/라는")} 주제로 기준을 읽습니다. 원국에 특정 쌍이 없다는 사실보다 실제 관계에서 무엇을 원하고 어떻게 말하는지가 이 장의 중심이에요.`,
       repair:
         "양보를 그만두겠다는 큰 선언보다 다음 선택 하나에서 내 의견을 먼저 말해보세요. ‘지난번에는 네가 고른 곳에 갔으니, 이번에는 내가 가보고 싶었던 곳은 어때?’처럼 작고 분명한 제안이면 충분합니다. 상대에게 마음을 맞힐 숙제를 주는 대신, 함께 결정할 재료를 하나 건네는 방식이에요.",
     },
@@ -305,10 +306,10 @@ export function createReport(input: BirthInput, chart: Chart) {
   const chapters = [
     chapter({
       title: "가까워지는 나만의 속도",
-      lead: `누군가에게 끌리는 순간과 내 사람이라고 느끼는 순간. 그 사이를 ‘${pace.title}’이라는 주제로 읽습니다.`,
+      lead: `누군가에게 끌리는 순간과 내 사람이라고 느끼는 순간. 그 사이를 ‘${pace.title}’${koreanParticle(pace.title, "이라는/라는")} 주제로 읽습니다.`,
       sections: [
         {
-          title: `${paceGod}로 읽는 관계의 시작`,
+          title: `${paceGod}${koreanParticle(paceGod, "으로/로")} 읽는 관계의 시작`,
           body: `${paceSource} ${rhythm.meaning}\n\n${season}`,
         },
         { title: "마음이 먼저 움직이는 순간", body: rhythm.attraction },
@@ -316,7 +317,7 @@ export function createReport(input: BirthInput, chart: Chart) {
         { title: "만약, 이런 데이트라면", body: rhythm.scene, kind: "scene" },
         {
           title: "설렘 뒤에 필요한 안심",
-          body: `${!preference && innerGod === paceGod ? `앞 장의 친밀감과 이 장의 속도에서 같은 ${paceGod}를 골랐어요. 앞에서는 내가 바라는 안심을 읽었다면, 여기서는 그 안심이 두 사람의 일상에 어떻게 자리 잡는지가 중요합니다. 첫 만남의 강렬함이 잦아든 뒤에도 작은 약속을 이어갈 수 있는지, 바쁜 날의 사정을 설명할 여지가 있는지가 다른 층의 이야기예요.` : rhythm.need}\n\n${preference ? `입력한 유형의 선호를 겹쳐 읽으면 ${preference.energy}, ${preference.structure}가 연락과 약속의 간격을 이해할 단서가 됩니다. 좋아하는 감정과 하루에 쓸 수 있는 시간은 다르기 때문에, 마음이 생긴 속도를 매일의 일정에 그대로 맞추지 않아도 괜찮아요.` : "처음 자주 만났다는 이유만으로 그 간격을 계속 유지해야 하는 것은 아니에요. 서로의 일정에 관계가 자리 잡는 과정에는 바쁜 날의 연락 방식처럼 작고 현실적인 합의도 필요합니다."}`,
+          body: `${!preference && innerGod === paceGod ? `앞 장의 친밀감과 이 장의 속도에서 같은 ${paceGod}${koreanParticle(paceGod, "을/를")} 골랐어요. 앞에서는 내가 바라는 안심을 읽었다면, 여기서는 그 안심이 두 사람의 일상에 어떻게 자리 잡는지가 중요합니다. 첫 만남의 강렬함이 잦아든 뒤에도 작은 약속을 이어갈 수 있는지, 바쁜 날의 사정을 설명할 여지가 있는지가 다른 층의 이야기예요.` : rhythm.need}\n\n${preference ? `${preference.energy}, 그리고 ${preference.structure}를 떠올려 보세요. 이 두 질문이 연락과 약속의 간격을 정하는 데 도움이 될 수 있어요. 좋아하는 감정과 하루에 쓸 수 있는 시간은 다르기 때문에, 마음이 생긴 속도를 매일의 일정에 그대로 맞추지 않아도 괜찮아요.` : "처음 자주 만났다는 이유만으로 그 간격을 계속 유지해야 하는 것은 아니에요. 서로의 일정에 관계가 자리 잡는 과정에는 바쁜 날의 연락 방식처럼 작고 현실적인 합의도 필요합니다."}`,
         },
         {
           title: "여울의 한마디",
@@ -346,7 +347,7 @@ export function createReport(input: BirthInput, chart: Chart) {
         },
         {
           title: "말을 바꾸기 전에, 순서를 바꿔본다면",
-          body: `${voice.repair}\n\n${preference ? `선택한 유형에서는 ${preference.perception}, ${preference.decision}를 함께 읽어요. 같은 사건을 이야기해도 한 사람은 상황 설명을, 다른 사람은 마음의 확인을 먼저 원할 수 있습니다. 대화의 시작 순서를 알려주면 상대가 무엇부터 들어야 하는지 이해하기 쉬워져요.` : "어떤 날에는 공감이 먼저, 어떤 날에는 방법을 함께 찾는 일이 먼저 필요할 수 있어요. 평소와 다른 도움이 필요한 날에는 그날의 요청을 새로 말해도 괜찮습니다."}`,
+          body: `${voice.repair}\n\n${preference ? `선택한 유형을 바탕으로 ${preference.perception}, 그리고 ${preference.decision}를 살펴봐요. 같은 사건을 이야기해도 한 사람은 상황 설명을, 다른 사람은 마음의 확인을 먼저 원할 수 있습니다. 대화의 시작 순서를 알려주면 상대가 무엇부터 들어야 하는지 이해하기 쉬워져요.` : "어떤 날에는 공감이 먼저, 어떤 날에는 방법을 함께 찾는 일이 먼저 필요할 수 있어요. 평소와 다른 도움이 필요한 날에는 그날의 요청을 새로 말해도 괜찮습니다."}`,
         },
         {
           title: "이렇게 대사가 달라질 수 있어요",
@@ -428,7 +429,7 @@ export function createReport(input: BirthInput, chart: Chart) {
         {
           title: "여울이 마지막으로 남기는 말",
           kind: "voice",
-          body: `처음에는 ${portrait.image}의 이미지로 당신의 이야기를 열었어요. 여기까지 읽고 나면 그 이미지에 실제로 중요하게 여기는 약속, 받고 싶은 말, 지키고 싶은 시간이 조금 더 구체적으로 붙어 있을 거예요.\n\n설명과 닮은 장면은 가져가고 다른 장면은 그대로 남겨두어도 괜찮아요. 이 리포트에서 가장 오래 남길 것은 누군가를 맞히는 문장이 아니라, 내 마음을 전보다 분명히 설명할 수 있는 나만의 말입니다.`,
+          body: `처음에는 ‘${portrait.image}’ 이미지로 당신의 이야기를 열었어요. 여기까지 읽고 나면 그 이미지에 실제로 중요하게 여기는 약속, 받고 싶은 말, 지키고 싶은 시간이 조금 더 구체적으로 붙어 있을 거예요.\n\n설명과 닮은 장면은 가져가고 다른 장면은 그대로 남겨두어도 괜찮아요. 이 리포트에서 가장 오래 남길 것은 누군가를 맞히는 문장이 아니라, 내 마음을 전보다 분명히 설명할 수 있는 나만의 말입니다.`,
         },
       ],
       question:
@@ -528,7 +529,7 @@ export function createReport(input: BirthInput, chart: Chart) {
               {
                 id: "intimacy.day-root",
                 section: "experiment",
-                condition: `일지 ${anchors.day.branch}의 ${innerGod}를 마지막 장의 관계 방식·실천·대사에 사용`,
+                condition: `일지 ${anchors.day.branch}의 ${innerGod}${koreanParticle(innerGod, "을/를")} 마지막 장의 관계 방식·실천·대사에 사용`,
                 evidence: [innerEvidence],
               },
             ]

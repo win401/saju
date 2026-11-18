@@ -1,3 +1,4 @@
+import { koreanParticle } from "../../../lib/korean-particle";
 import {
   analyzeChart,
   type PillarFact,
@@ -237,8 +238,8 @@ function stemEvidence(p: PillarFact, hidden = false): ReadingEvidence {
     kind: "chart",
     label: hidden ? `${p.label} 지장간` : `${p.label} 천간`,
     detail: hidden
-      ? `${p.hanja[1]}의 지장간 ${p.hiddenStems.map((s) => `${s.hanja}(${s.korean})·${s.tenGod}`).join(", ")}. 이번 질문에는 첫 글자 ${stem.hanja}·${stem.tenGod}를 사용했어요. 개수나 강약 순위는 아닙니다.`
-      : `${p.hanja[0]}(${stem.korean})는 일간을 기준으로 ${stem.tenGod}에 해당해요.`,
+      ? `${p.hanja[1]}의 지장간 ${p.hiddenStems.map((s) => `${s.hanja}(${s.korean})·${s.tenGod}`).join(", ")}. 이번 질문에는 첫 글자 ${stem.hanja}·${stem.tenGod}${koreanParticle(stem.tenGod, "을/를")} 사용했어요. 개수나 강약 순위는 아닙니다.`
+      : `${p.hanja[0]}(${stem.korean})${koreanParticle(stem.korean, "은/는")} 일간을 기준으로 ${stem.tenGod}에 해당해요.`,
   };
 }
 
@@ -252,7 +253,7 @@ function seasonSentence(facts: SajuAnalysis) {
     겨울: "충분히 머무는 시간과 다가갈 시점",
     "계절 전환": "이어가는 약속과 바꿔볼 방식",
   };
-  return `월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})는 ${facts.season.name}의 구분으로 읽어요. 이 계절의 이미지를 ‘${images[facts.season.name]}’이라는 질문으로 연결해볼게요.`;
+  return `월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})${koreanParticle(facts.season.monthBranchKorean, "은/는")} ${facts.season.name} 구간에 들어요. 이 계절의 이미지에서 ‘${images[facts.season.name]}’${koreanParticle(images[facts.season.name], "이라는/라는")} 주제를 읽어볼게요.`;
 }
 
 export function buildRelationshipPlan(chart: Chart) {
@@ -275,7 +276,7 @@ export function buildRelationshipPlan(chart: Chart) {
             {
               kind: "chart" as const,
               label: "태어난 계절의 단서",
-              detail: `확정된 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})를 ${facts.season.name}으로 구분했어요. 계절 가중치나 신강·신약 판정은 하지 않았어요.`,
+              detail: `확정된 월지 ${facts.season.monthBranch}(${facts.season.monthBranchKorean})${koreanParticle(facts.season.monthBranchKorean, "을/를")} ${facts.season.name} 구간으로 분류했어요. 계절 가중치나 신강·신약 판정은 하지 않았어요.`,
             },
           ]
         : []),
