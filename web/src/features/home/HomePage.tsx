@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import LivingScene from "@/features/reading/LivingScene";
 
 export default function HomePage() {
   return (
@@ -9,19 +10,12 @@ export default function HomePage() {
           <span className="home-brand-mark">결</span>
           <span>당신을 읽는 서재</span>
         </Link>
-        <span className="home-preview-badge">무료 개발 체험</span>
+        <span className="home-preview-badge">포트폴리오 데모</span>
       </header>
 
       <main className="home-main">
         <section className="home-hero" aria-labelledby="home-title">
-          <Image
-            src="/images/yeoul-thread-room.png"
-            alt="빛나는 실을 건네며 서재로 안내하는 여울"
-            fill
-            sizes="(max-width: 480px) 100vw, 480px"
-            preload
-            className="home-hero-image"
-          />
+          <LivingScene />
           <span className="home-hero-note">여울의 서재 · GYEOL</span>
           <div className="home-hero-content">
             <p className="home-eyebrow">지금, 어떤 내가 궁금한가요</p>
@@ -34,6 +28,12 @@ export default function HomePage() {
               <br />
               오늘의 마음이 머무는 책을 골라보세요.
             </p>
+            <Link
+              className="home-demo-link"
+              href="/readings/traditional#quick-demo"
+            >
+              입력 없이 샘플로 둘러보기 <span aria-hidden="true">↗</span>
+            </Link>
           </div>
           <span className="home-hero-seal" aria-hidden="true">
             結
@@ -196,9 +196,9 @@ export default function HomePage() {
         <aside className="home-preview-note">
           <span className="home-preview-dot" aria-hidden="true" />
           <p>
-            <strong>지금은 무료로 체험할 수 있어요.</strong>
+            <strong>모든 사주 리포트를 무료로 읽어보세요.</strong>
             <br />
-            서비스를 다듬는 중이며 실제 결제는 진행되지 않아요.
+            포트폴리오 시연용 서비스예요. 회원가입과 실제 결제는 없어요.
           </p>
         </aside>
       </main>

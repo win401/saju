@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import "@/features/reading/reading.css";
 import "@/features/reading/story.css";
 import "@/features/home/home.css";
+import "@/features/reading/living-scene.css";
 import "@/features/relationship/love-consultation.css";
 export const metadata: Metadata = {
   title: "결 — 정통 사주 · 연애 사주 · 사주×MBTI",

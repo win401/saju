@@ -265,3 +265,22 @@ main {
     transition: none !important;
   }
 }
+.recovery-page {
+  min-height: 70svh;
+  padding: 64px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+.recovery-page h1 {
+  font-size: 1.7rem;
+  line-height: 1.5;
+}
+.recovery-page p {
+  color: #686e63;
+  line-height: 1.8;
+}
+.recovery-page > a {
+  text-align: center;
+}

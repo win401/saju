@@ -989,3 +989,38 @@ blockquote {
   color: #54745a;
   text-underline-offset: 5px;
 }
+.quick-demo {
+  grid-column: 1 / -1;
+  scroll-margin-top: 24px;
+  padding: 20px;
+  margin: 0 0 20px;
+  border: 1px solid #d9c9ab;
+  border-radius: 8px;
+  background: #f8efdf;
+}
+.quick-demo strong {
+  font-size: 0.94rem;
+}
+.quick-demo p {
+  color: #736753;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  margin: 8px 0 14px;
+}
+.quick-demo button {
+  width: 100%;
+}
+.sample-result-note {
+  padding: 14px 16px;
+  border-radius: 6px;
+  background: #eee7da;
+  color: #64573f;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.result-quick-action {
+  margin: 16px 0 24px;
+}
+.result-quick-action > button {
+  width: 100%;
+}

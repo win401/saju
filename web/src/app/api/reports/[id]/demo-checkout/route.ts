@@ -1,13 +1,14 @@
 import { NextRequest } from "next/server";
 import { unlockStoredReport } from "@/features/reading/server/report-store";
 import { checkOrigin, json, readSmallJson, SESSION_COOKIE } from "@/lib/http";
+import { isPublicDemoEnabled } from "@/lib/deployment-mode";
 export const runtime = "nodejs";
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   // Never ship a working mock-payment bypass in a production build.
-  if (process.env.NODE_ENV !== "development")
+  if (process.env.NODE_ENV !== "development" || isPublicDemoEnabled())
     return json(
       { error: "개발 모드에서만 체험 주문을 사용할 수 있어요." },
       403,

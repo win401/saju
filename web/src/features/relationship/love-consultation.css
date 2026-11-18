@@ -1,4 +1,49 @@
 /* 여울의 AI 연애 상담. 다른 리포트 스타일에 영향을 주지 않는 독립 클래스. */
+.ai-love-sample-header {
+  padding: 23px 20px 19px;
+  background: #e9eddf;
+}
+.ai-love-sample-header h2 {
+  margin: 0 0 10px;
+  font: 600 1.25rem/1.5 var(--font-display);
+  letter-spacing: -0.05em;
+}
+.ai-love-sample-header p,
+.ai-love-live-note {
+  margin: 0;
+  color: #65705e;
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+.ai-love-sample-reading > summary,
+.ai-love-live-access > summary {
+  padding: 17px 20px;
+  color: #35543e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ai-love-sample-reading[open] > summary {
+  border-bottom: 1px solid #d8dfcf;
+}
+.ai-love-live-access {
+  margin: -14px 0 30px;
+  border: 1px solid #d8dccc;
+  border-radius: 12px;
+  background: #f6f4eb;
+}
+.ai-love-live-access > summary {
+  font-size: 0.75rem;
+}
+.ai-love-live-note {
+  padding: 0 20px 18px;
+}
+.ai-love-live-access > .ai-love {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #d8dccc;
+  border-radius: 0 0 12px 12px;
+}
 .ai-love {
   margin: 30px 0;
   border: 1px solid #d2d8c9;

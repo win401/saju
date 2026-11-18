@@ -1,0 +1,183 @@
+/* Each layer moves independently; the copy and controls stay still. */
+.living-scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.living-scene-art,
+.living-scene-layers,
+.living-scene-character {
+  position: absolute;
+  inset: 0;
+}
+.living-scene-art {
+  overflow: hidden;
+  z-index: 0;
+  background: #20302b;
+}
+.living-scene-art img {
+  object-fit: cover;
+  object-position: center;
+}
+.living-scene-layers {
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.living-scene[data-ready="true"] .living-scene-layers {
+  opacity: 1;
+}
+.living-scene-character {
+  transform-origin: 50% 75%;
+  animation: yeoul-breath 7.6s ease-in-out infinite;
+}
+.living-scene-character img {
+  transform: scale(0.82) translateY(1%);
+  transform-origin: 50% 0;
+}
+.living-scene-foreground {
+  mask-image: linear-gradient(transparent 64%, #000 71%);
+}
+.living-scene-lamplight {
+  position: absolute;
+  inset: -8%;
+  background:
+    radial-gradient(ellipse at 16% 30%, #ffbc664d, transparent 29%),
+    radial-gradient(ellipse at 89% 60%, #ffd29a3d, transparent 24%);
+  mix-blend-mode: screen;
+  animation: yeoul-lamplight 5.8s ease-in-out infinite alternate;
+}
+.living-scene-threads {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: #ffe2a9;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 5px #ffad57);
+  animation: yeoul-thread-light 4.8s ease-in-out infinite alternate;
+}
+.living-scene-threads path:nth-child(2) {
+  stroke-width: 3;
+}
+.living-scene-dust i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffe4b0;
+  box-shadow: 0 0 9px 2px #ffca7f80;
+  animation: yeoul-dust 8s ease-in-out infinite;
+}
+.living-scene-dust i:nth-child(1) {
+  left: 15%;
+  top: 48%;
+}
+.living-scene-dust i:nth-child(2) {
+  left: 80%;
+  top: 34%;
+  animation-delay: -3s;
+}
+.living-scene-dust i:nth-child(3) {
+  left: 64%;
+  top: 59%;
+  animation-delay: -5s;
+}
+.living-scene-dust i:nth-child(4) {
+  left: 29%;
+  top: 77%;
+  animation-delay: -2s;
+}
+.living-scene-dust i:nth-child(5) {
+  left: 89%;
+  top: 80%;
+  animation-delay: -6s;
+}
+.living-scene-dust i:nth-child(6) {
+  left: 8%;
+  top: 19%;
+  animation-delay: -4s;
+}
+.living-scene-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  min-height: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #fff1d64d;
+  border-radius: 30px;
+  background: #172c25c9;
+  color: #ffefda;
+  font: inherit;
+  font-size: 0.65rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.living-scene-toggle:focus-visible {
+  outline: 2px solid #ffe0ab;
+  outline-offset: 3px;
+}
+.living-scene .living-scene-character,
+.living-scene .living-scene-lamplight,
+.living-scene .living-scene-threads,
+.living-scene .living-scene-dust i {
+  animation-play-state: paused;
+}
+.living-scene[data-running="true"] .living-scene-character,
+.living-scene[data-running="true"] .living-scene-lamplight,
+.living-scene[data-running="true"] .living-scene-threads,
+.living-scene[data-running="true"] .living-scene-dust i {
+  animation-play-state: running;
+}
+@keyframes yeoul-breath {
+  0%,
+  100% {
+    transform: translateY(1px) rotate(-0.2deg) scaleY(1);
+  }
+  50% {
+    transform: translateY(-2px) rotate(0.25deg) scaleY(1.006);
+  }
+}
+@keyframes yeoul-lamplight {
+  from {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 0.75;
+    transform: scale(1.03);
+  }
+}
+@keyframes yeoul-thread-light {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+@keyframes yeoul-dust {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translate(0, 9px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(5px, -13px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .living-scene-layers {
+    transition: none;
+  }
+  .living-scene:not([data-motion-allowed="true"]) *,
+  .living-scene:not([data-motion-allowed="true"]) .living-scene-dust i {
+    animation: none;
+  }
+}

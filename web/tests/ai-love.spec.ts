@@ -96,14 +96,18 @@ async function mockAi(
   });
 }
 
-async function openLovePreview(page: Page) {
+async function openLovePreview(page: Page, openLive = true) {
   await page.goto("/readings/love");
-  await page.getByLabel("별명").fill(birthInput.nickname);
+  const nickname = page.getByLabel("별명");
+  // The fieldset enables only after hydration and profile restoration finish.
+  await expect(nickname).toBeEnabled();
+  await nickname.fill(birthInput.nickname);
   await page.getByText("여성", { exact: true }).click();
   await page.getByLabel("태어난 날짜").fill(birthInput.birthDate);
   await page
     .getByLabel("태어난 시간", { exact: true })
     .fill(birthInput.birthTime);
+  await expect(nickname).toHaveValue(birthInput.nickname);
   const preview = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname === "/api/reports" &&
@@ -114,6 +118,8 @@ async function openLovePreview(page: Page) {
   await expect(
     page.locator(".reading-prose .narrative-section").first(),
   ).toBeVisible();
+  const liveAccess = page.locator(".ai-love-live-access > summary");
+  if (openLive && (await liveAccess.count())) await liveAccess.click();
 }
 
 test("AI unavailable is explicit while the regular love report remains usable", async ({
@@ -128,7 +134,7 @@ test("AI unavailable is explicit while the regular love report remains usable", 
     });
   });
   await openLovePreview(page);
-  const ai = page.locator(".ai-love");
+  const ai = page.locator(".ai-love:not(.ai-love--sample)");
   await expect(
     ai.getByRole("heading", { name: "여울의 AI 상담 준비 중" }),
   ).toBeVisible();
@@ -141,9 +147,16 @@ test("AI unavailable is explicit while the regular love report remains usable", 
     animations: "disabled",
     scale: "css",
   });
-  await page.getByRole("button", { name: "전체 리포트 체험" }).click();
-  await page.getByLabel("실제 결제가 아닌 체험임을 확인했어요.").check();
-  await page.getByRole("button", { name: "0원으로 전체 체험하기" }).click();
+  const publicFullReading = page.getByRole("button", {
+    name: "전체 리포트 무료로 읽기",
+  });
+  if (await publicFullReading.count()) {
+    await publicFullReading.click();
+  } else {
+    await page.getByRole("button", { name: "전체 리포트 체험" }).click();
+    await page.getByLabel("실제 결제가 아닌 체험임을 확인했어요.").check();
+    await page.getByRole("button", { name: "0원으로 전체 체험하기" }).click();
+  }
   await expect(page.locator(".chapter-reader h3")).toBeVisible();
   await expect(page.locator(".chapter-progress button")).toHaveCount(4);
   expect(aiPosts).toBe(0);
@@ -166,7 +179,7 @@ test("owner code and consent submit one request, lock loading controls, and rend
   });
   try {
     await openLovePreview(page);
-    const ai = page.locator(".ai-love");
+    const ai = page.locator(".ai-love:not(.ai-love--sample)");
     const questionInput = ai.getByLabel("여울에게 묻고 싶은 이야기");
     const codeInput = ai.getByLabel("체험 코드");
     const consent = ai.getByLabel("AI 상담에 필요한 정보 전송에 동의해요.");
@@ -258,7 +271,7 @@ test("a 502 response keeps question, code and consent until explicit retry succe
     );
   });
   await openLovePreview(page);
-  const ai = page.locator(".ai-love");
+  const ai = page.locator(".ai-love:not(.ai-love--sample)");
   const questionInput = ai.getByLabel("여울에게 묻고 싶은 이야기");
   const codeInput = ai.getByLabel("체험 코드");
   const consent = ai.getByLabel("AI 상담에 필요한 정보 전송에 동의해요.");
@@ -285,4 +298,39 @@ test("a 502 response keeps question, code and consent until explicit retry succe
   expect(posts).toHaveLength(2);
   expect(posts[1]).toEqual(posts[0]);
   await expect(ai.getByRole("alert")).toHaveCount(0);
+});
+
+test("public consultation sample needs no AI request and survives unavailable live status", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  await page.route("**/api/ai/love", async (route) => {
+    requests.push(route.request().method());
+    await route.fulfill({
+      status: 503,
+      json: { error: "Unavailable fixture" },
+    });
+  });
+  await openLovePreview(page, false);
+  const sample = page.locator(".ai-love--sample");
+  test.skip(!(await sample.count()), "Requires SAJU_PUBLIC_DEMO=1");
+  await expect(sample).toContainText("실시간 AI 응답이 아니며");
+  await sample.getByText("상담 예시 읽기", { exact: true }).click();
+  await expect(sample.getByTestId("love-consultation-example")).toBeVisible();
+  await expect(
+    sample.getByRole("heading", {
+      name: "답장의 온도보다, 함께 내는 시간을 봐요",
+    }),
+  ).toBeVisible();
+  expect(requests).toEqual([]);
+
+  await page.locator(".ai-love-live-access > summary").click();
+  await expect(page.locator(".ai-love--quiet")).toContainText(
+    "상담실 연결을 확인하지 못했어요",
+  );
+  await expect(sample.getByTestId("love-consultation-example")).toBeVisible();
+  // Development StrictMode can run the mounted availability effect twice.
+  expect(requests.length).toBeGreaterThanOrEqual(1);
+  expect(requests.every((method) => method === "GET")).toBe(true);
+  await expect(sample.locator("input, textarea")).toHaveCount(0);
 });

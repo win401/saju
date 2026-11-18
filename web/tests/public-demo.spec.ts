@@ -122,18 +122,13 @@ for (const theme of themes) {
     await expectBirthStorage(page, theme.id === "mbti" ? "INFP" : null);
     await expectNoHorizontalOverflow(page);
 
-    await page.getByRole("button", { name: "전체 리포트 체험" }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "0원으로 전체 체험하기" }),
-    ).toBeDisabled();
-    await page.getByLabel("실제 결제가 아닌 체험임을 확인했어요.").check();
     const fullResponse = page.waitForResponse(
       (response) =>
         new URL(response.url()).pathname === "/api/demo/readings" &&
         response.request().method() === "POST",
     );
-    await page.getByRole("button", { name: "0원으로 전체 체험하기" }).click();
+    await page.getByRole("button", { name: "전체 리포트 무료로 읽기" }).click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
     const full = await fullResponse;
     expect(full.status()).toBe(200);
     expect(full.headers()["set-cookie"]).toBeUndefined();
@@ -167,6 +162,70 @@ for (const theme of themes) {
     expect(errors).toEqual([]);
   });
 }
+
+for (const theme of themes) {
+  test(`${theme.id}: sample starts without personal input or saving a profile`, async ({
+    page,
+  }) => {
+    await page.goto(`/readings/${theme.id}`);
+    await page.getByRole("button", { name: "샘플로 바로 체험하기" }).click();
+    await expect(page.locator(".sample-result-note")).toContainText(
+      "샘플 결과",
+    );
+    await expect(page.locator(".birth-meta")).toContainText("2000-03-07");
+    await expectNoBirthStorage(page);
+    await page.getByRole("button", { name: "상세 4장 무료로 읽기" }).click();
+    await expect(page.locator(".chapter-reader h3")).toBeVisible();
+    await page
+      .getByRole("button", { name: `4장 ${theme.lastChapter} 열기` })
+      .click();
+    await page.getByRole("button", { name: "내 정보로 읽어보기" }).click();
+    await expect(page.getByLabel("태어난 날짜")).toHaveValue("");
+    await expectNoBirthStorage(page);
+  });
+}
+
+test("sample preserves a saved profile and a failed full report can be retried", async ({
+  page,
+}) => {
+  await page.goto("/readings/traditional");
+  await page.getByText("여성", { exact: true }).click();
+  await page.getByLabel("별명").fill("보관테스터");
+  await page.getByLabel("태어난 날짜").fill("2001-01-07");
+  await page.getByLabel("태어난 시간", { exact: true }).fill("12:00");
+  await page.getByRole("button", { name: "나의 무료 요약 읽기" }).click();
+  await expect(page.locator(".reading-result")).toBeVisible();
+  const stored = await page.evaluate(() =>
+    localStorage.getItem("gyeol.birth-profile.v1"),
+  );
+  await page.getByRole("button", { name: "입력 수정" }).click();
+  await page.getByRole("button", { name: "샘플로 바로 체험하기" }).click();
+  await expect(page.locator(".sample-result-note")).toBeVisible();
+  expect(
+    await page.evaluate(() => localStorage.getItem("gyeol.birth-profile.v1")),
+  ).toBe(stored);
+  await page.route(
+    "**/api/demo/readings",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "text/html",
+        body: "Unavailable",
+      }),
+    { times: 1 },
+  );
+  await page.getByRole("button", { name: "상세 4장 무료로 읽기" }).click();
+  await expect(page.locator(".error-box[role=alert]")).toContainText(
+    "서버 응답을 읽지 못했어요",
+  );
+  await page.getByRole("button", { name: "상세 4장 무료로 읽기" }).click();
+  await expect(page.locator(".chapter-reader h3")).toBeVisible();
+  await page
+    .getByRole("button", { name: "내 정보로 읽기", exact: false })
+    .click();
+  await expect(page.getByLabel("별명")).toHaveValue("보관테스터");
+  await expect(page.getByLabel("태어난 날짜")).toHaveValue("2001-01-07");
+});
 
 test("deployed API accepts its public origin, rejects foreign origins, and keeps legacy checkout disabled", async ({
   request,

@@ -6,10 +6,12 @@
 | --- | --- |
 | [PRODUCT_PLAN.md](PRODUCT_PLAN.md) | 고객, 핵심 경험, 콘텐츠·수익화 구상 |
 | [EXPERIENCE_STORYBOARD.md](EXPERIENCE_STORYBOARD.md) | 웹툰형 리포트의 장면 구성과 화면 원칙 |
+| [LIVING_COMIC_PREVIEW.md](LIVING_COMIC_PREVIEW.md) | 인물·배경 레이어로 움직이는 메인 첫 장면, 자산·프롬프트·검증 기록 |
 | [EXPERIENCE_IDEAS.md](EXPERIENCE_IDEAS.md) | 웹툰 외 몰입형 경험 아이디어와 첫 실험안 |
 | [ROADMAP.md](ROADMAP.md) | 현재 상태, 우선순위, 할 일과 완료 기준 |
 | [DECISIONS.md](DECISIONS.md) | 확정된 결정, 제안, 미결정 사항의 이유 |
 | [RESEARCH_NOTES.md](RESEARCH_NOTES.md) | 경쟁 서비스 참고 사항, 지식재산권·사업 준비 확인 항목 |
+| [CONTENT_REFERENCE_REVIEW.md](CONTENT_REFERENCE_REVIEW.md) | 공개 사주 원고 레퍼런스, 현재 글의 문제와 쉬운 풀이 개편 제안 |
 | [DATA_AI_ARCHITECTURE.md](DATA_AI_ARCHITECTURE.md) | 이용 데이터 보관·분석 대시보드·AI 도입 순서 제안 |
 | [INTERPRETATION_ENGINE.md](INTERPRETATION_ENGINE.md) | 관계 해석 엔진의 계산 특징·규칙·근거 표시·고정 검수 사례 |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Vercel 공개 무료 체험 설정, 데이터 처리, 배포 검증 기록 |
@@ -21,7 +23,7 @@
 - 경쟁 서비스의 공개 정보와 우리의 추측을 구분하고 출처를 적습니다. 매출·전환율·법적 상태는 독립 검증 없이 확정 사실로 쓰지 않습니다.
 - 생년월일 등 민감한 사용자 입력 예시는 문서에 기록하지 않습니다. 테스트에는 가상 데이터를 씁니다.
 
-마지막 정리: 2026-09-26.
+마지막 정리: 2026-11-18. 현재 우선순위는 포트폴리오 시연이며 [ROADMAP.md](ROADMAP.md)와 [DEPLOYMENT.md](DEPLOYMENT.md)에 이번 작업 범위를 기록한다.
 
 ## 실험 브랜치
 

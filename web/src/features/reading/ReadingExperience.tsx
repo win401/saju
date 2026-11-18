@@ -9,6 +9,7 @@ import ExplanationBasis from "./ExplanationBasis";
 import ChapterNarrative from "./ChapterNarrative";
 import LoveConsultation from "@/features/relationship/LoveConsultation";
 import useBirthProfile from "./useBirthProfile";
+import { requestReading } from "./request-reading";
 import {
   ELEMENTS,
   READING_THEMES,
@@ -97,6 +98,8 @@ export default function ReadingExperience({
   const [confirmed, setConfirmed] = useState(false);
   const [storyPath, setStoryPath] = useState<RelationshipFocus | null>(null);
   const [activeChapter, setActiveChapter] = useState(0);
+  const [sampleResult, setSampleResult] = useState(false);
+  const request = useRef<AbortController | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const fullHeading = useRef<HTMLHeadingElement>(null);
@@ -104,9 +107,15 @@ export default function ReadingExperience({
   const formSection = useRef<HTMLElement>(null);
   const pathSection = useRef<HTMLElement>(null);
   const chapterHeading = useRef<HTMLHeadingElement>(null);
+  const errorMessage = useRef<HTMLParagraphElement>(null);
   const chosenPath = storyPaths.find(
     (path) => path.id === (view === "result" ? report?.focus : storyPath),
   );
+
+  useEffect(() => () => request.current?.abort(), []);
+  useEffect(() => {
+    if (error) errorMessage.current?.focus();
+  }, [error]);
 
   useEffect(() => {
     if (checkoutOpen) {
@@ -135,73 +144,86 @@ export default function ReadingExperience({
   }
   async function discard() {
     if (report && report.demoMode !== "public")
-      await fetch(`/api/reports/${report.id}`, { method: "DELETE" }).catch(
-        () => {},
-      );
+      await fetch(`/api/reports/${report.id}`, {
+        method: "DELETE",
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => {});
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || !profileReady) return;
+    await generate(input);
+  }
+  async function generate(source: BirthInput, sample = false) {
+    if (busy || request.current || !profileReady) return;
+    const controller = new AbortController();
+    request.current = controller;
     setBusy(true);
     setError("");
     try {
-      await discard();
       const submittedInput: BirthInput = {
-        ...input,
+        ...source,
         theme,
-        mbti: theme === "mbti" ? input.mbti : null,
+        mbti: theme === "mbti" ? source.mbti : null,
         focus: theme === "love" ? storyPath : null,
       };
-      const response = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submittedInput),
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.error || "결과를 만들지 못했어요. 잠시 후 다시 시도해주세요.",
-        );
+      const data = await requestReading<ReadingPreview>(
+        "/api/reports",
+        submittedInput,
+        controller.signal,
+      );
+      if (controller.signal.aborted) return;
       setReport(data);
       setReportInput(submittedInput);
-      saveProfile();
+      setSampleResult(sample);
+      if (!sample) saveProfile();
       setFull(null);
       setView("result");
     } catch (err) {
+      if (controller.signal.aborted) return;
       setError(
         err instanceof Error
           ? err.message
           : "연결을 확인하고 다시 시도해주세요.",
       );
     } finally {
-      setBusy(false);
+      if (!controller.signal.aborted) setBusy(false);
+      if (request.current === controller) request.current = null;
     }
   }
+  function trySample() {
+    void generate(
+      {
+        ...initial,
+        nickname: "샘플",
+        gender: "female",
+        birthDate: "2000-03-07",
+        birthTime: "12:00",
+        mbti: "INFP",
+      },
+      true,
+    );
+  }
   async function unlock() {
-    if (!report || !confirmed || busy) return;
+    if (!report || busy || request.current) return;
+    const publicReading = report.demoMode === "public";
+    if (!publicReading && !confirmed) return;
+    const controller = new AbortController();
+    request.current = controller;
     setBusy(true);
     setError("");
     try {
-      const publicReading = report.demoMode === "public";
       if (publicReading && !reportInput)
         throw new Error("입력 화면에서 다시 시작해주세요.");
-      const response = await fetch(
+      const data = await requestReading<FullReading>(
         publicReading
           ? "/api/demo/readings"
           : `/api/reports/${report.id}/demo-checkout`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            publicReading
-              ? { confirmed: true, input: reportInput }
-              : { confirmed: true },
-          ),
-        },
+        publicReading
+          ? { confirmed: true, input: reportInput }
+          : { confirmed: true },
+        controller.signal,
       );
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.error || "체험 주문을 완료하지 못했어요.");
+      if (controller.signal.aborted) return;
       const selectedChapter = data.chapters.findIndex(
         (chapter: { title: string }) => chapter.title === chosenPath?.chapter,
       );
@@ -209,9 +231,11 @@ export default function ReadingExperience({
       setCheckoutOpen(false);
       setFull(data);
     } catch (err) {
+      if (controller.signal.aborted) return;
       setError(err instanceof Error ? err.message : "연결을 확인해주세요.");
     } finally {
-      setBusy(false);
+      if (!controller.signal.aborted) setBusy(false);
+      if (request.current === controller) request.current = null;
     }
   }
   function edit() {
@@ -251,7 +275,9 @@ export default function ReadingExperience({
           <span className="brand-mark">결</span>
           <span className="brand-caption">나를 읽는 시간</span>
         </a>
-        <span className="dev-badge">출시 전 체험</span>
+        <span className="dev-badge">
+          {publicDemo ? "포트폴리오 데모" : "출시 전 체험"}
+        </span>
       </header>
       <main>
         {view === "input" && theme === "love" && (
@@ -359,6 +385,23 @@ export default function ReadingExperience({
         </nav>
         {view === "input" ? (
           <section className="intro-grid">
+            <aside className="quick-demo" id="quick-demo">
+              <div>
+                <strong>입력 없이 먼저 둘러보세요</strong>
+                <p>
+                  가상의 출생정보로 {product.name}를 읽어요. 저장된 내 정보는
+                  바뀌지 않아요.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="secondary"
+                onClick={trySample}
+                disabled={busy || !profileReady}
+              >
+                {busy ? "결과를 준비하고 있어요…" : "샘플로 바로 체험하기"}
+              </button>
+            </aside>
             {theme === "love" && (
               <section
                 className="path-stage"
@@ -673,7 +716,12 @@ export default function ReadingExperience({
                     </p>
                   </details>
                   {error && (
-                    <p className="error-box" role="alert">
+                    <p
+                      className="error-box"
+                      role="alert"
+                      ref={errorMessage}
+                      tabIndex={-1}
+                    >
                       {error}
                     </p>
                   )}
@@ -694,13 +742,19 @@ export default function ReadingExperience({
           report && (
             <section className="reading-result">
               <div className="result-toolbar">
-                <button className="text-button" onClick={edit}>
-                  ← 입력 수정
+                <button className="text-button" onClick={edit} disabled={busy}>
+                  {sampleResult ? "← 내 정보로 읽기" : "← 입력 수정"}
                 </button>
                 <span>
                   {product.name} · {full ? "전체 체험" : "무료 해설"}
                 </span>
               </div>
+              {sampleResult && (
+                <p className="sample-result-note" role="status">
+                  샘플 결과 · 가상의 출생정보로 실제 계산한 결과예요. 내 정보
+                  분석이나 저장은 하지 않았어요.
+                </p>
+              )}
               {storageMessage && (
                 <p className="profile-status" role="status">
                   {storageMessage}
@@ -756,8 +810,27 @@ export default function ReadingExperience({
                   </p>
                 </div>
               )}
-              {theme === "love" && reportInput && (
-                <LoveConsultation key={report.id} input={reportInput} />
+              {publicDemo && !full && (
+                <div className="result-quick-action">
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={unlock}
+                    disabled={busy}
+                  >
+                    {busy ? "상세 내용을 불러오는 중…" : "상세 4장 무료로 읽기"}
+                  </button>
+                  {error && (
+                    <p
+                      className="error-box"
+                      role="alert"
+                      ref={errorMessage}
+                      tabIndex={-1}
+                    >
+                      {error}
+                    </p>
+                  )}
+                </div>
               )}
               {report.chart.warnings.length > 0 && (
                 <aside
@@ -858,6 +931,13 @@ export default function ReadingExperience({
                   성격이나 미래를 확정하지 않습니다.
                 </small>
               </section>
+              {theme === "love" && reportInput && (
+                <LoveConsultation
+                  key={report.id}
+                  input={reportInput}
+                  publicDemo={publicDemo}
+                />
+              )}
               {!full ? (
                 <section className="paywall" aria-labelledby="paywall-title">
                   <div>
@@ -894,9 +974,19 @@ export default function ReadingExperience({
                     </ol>
                   </div>
                   <div className="purchase-card">
-                    <span className="mini-label">상세 리포트 · 단건 상품</span>
-                    <p className="price">{formatPrice(product.price)}</p>
-                    <p className="price-note">출시 예정가 · 현재는 무료 체험</p>
+                    <span className="mini-label">
+                      {publicDemo
+                        ? "모든 챕터 무료 공개"
+                        : "상세 리포트 · 단건 상품"}
+                    </span>
+                    {!publicDemo && (
+                      <>
+                        <p className="price">{formatPrice(product.price)}</p>
+                        <p className="price-note">
+                          출시 예정가 · 현재는 무료 체험
+                        </p>
+                      </>
+                    )}
                     <ul>
                       <li>안내된 네 가지 상세 챕터</li>
                       <li>
@@ -910,20 +1000,30 @@ export default function ReadingExperience({
                     </ul>
                     <button
                       className="primary"
-                      disabled={!report.demoAvailable}
+                      disabled={!report.demoAvailable || busy}
                       onClick={() => {
+                        if (publicDemo) {
+                          void unlock();
+                          return;
+                        }
                         setConfirmed(false);
                         setError("");
                         setCheckoutOpen(true);
                       }}
                     >
                       {report.demoAvailable
-                        ? "전체 리포트 체험"
+                        ? busy
+                          ? "상세 내용을 불러오는 중…"
+                          : publicDemo
+                            ? "전체 리포트 무료로 읽기"
+                            : "전체 리포트 체험"
                         : "유료 서비스 준비 중"}
                       <span aria-hidden="true">↗</span>
                     </button>
                     <p className="button-note">
-                      실제 결제 없이 구매 흐름만 체험합니다.
+                      {publicDemo
+                        ? "결제·회원가입 없이 네 장을 모두 읽을 수 있어요."
+                        : "실제 결제 없이 구매 흐름만 체험합니다."}
                     </p>
                   </div>
                 </section>
@@ -931,7 +1031,11 @@ export default function ReadingExperience({
                 <section className="full-report">
                   <div className="report-divider">
                     <span>THE NEXT CHAPTER</span>
-                    <span>체험 주문 완료 · 청구 없음</span>
+                    <span>
+                      {publicDemo
+                        ? "모든 챕터가 열렸어요"
+                        : "체험 주문 완료 · 청구 없음"}
+                    </span>
                   </div>
                   <h2 ref={fullHeading} tabIndex={-1}>
                     {product.fullTitle}
@@ -1003,8 +1107,13 @@ export default function ReadingExperience({
                         <br />
                         다음 장은 당신의 선택으로 채워집니다.
                       </p>
-                      <button className="secondary" onClick={reset}>
-                        입력 정보 지우고 다시 시작
+                      <button
+                        className="secondary"
+                        onClick={sampleResult ? edit : reset}
+                      >
+                        {sampleResult
+                          ? "내 정보로 읽어보기"
+                          : "입력 정보 지우고 다시 시작"}
                       </button>
                       <Link className="other-readings" href="/">
                         다른 이야기 둘러보기 →
@@ -1016,8 +1125,13 @@ export default function ReadingExperience({
                   )}
                 </section>
               )}
-              {error && !checkoutOpen && (
-                <p className="error-box" role="alert">
+              {error && !checkoutOpen && !publicDemo && (
+                <p
+                  className="error-box"
+                  role="alert"
+                  ref={errorMessage}
+                  tabIndex={-1}
+                >
                   {error}
                 </p>
               )}
@@ -1028,7 +1142,7 @@ export default function ReadingExperience({
       <footer className="site-footer">
         <span className="brand-mark">결</span>
         <p>나를 이해하는 또 하나의 관점</p>
-        <small>개발용 베타 · 미래나 관계의 결과를 보장하지 않습니다.</small>
+        <small>자기이해를 위한 참고 콘텐츠 · 실제 결제 없음</small>
       </footer>
       <dialog
         ref={dialog}
@@ -1071,7 +1185,12 @@ export default function ReadingExperience({
           실제 결제가 아닌 체험임을 확인했어요.
         </label>
         {error && checkoutOpen && (
-          <p className="error-box" role="alert">
+          <p
+            className="error-box"
+            role="alert"
+            ref={errorMessage}
+            tabIndex={-1}
+          >
             {error}
           </p>
         )}

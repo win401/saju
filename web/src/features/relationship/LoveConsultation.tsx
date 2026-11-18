@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import type { BirthInput } from "@/types/reading";
+import LoveConsultationExample from "./LoveConsultationExample";
 import {
   LOVE_STATUSES,
   LOVE_STATUS_LABELS,
@@ -19,7 +20,38 @@ const suggestions = [
   "상대에게 맞추다 제 마음을 놓치곤 해요. 어떤 기준을 세우면 좋을까요?",
 ];
 
-export default function LoveConsultation({ input }: { input: BirthInput }) {
+export default function LoveConsultation({
+  input,
+  publicDemo = false,
+}: {
+  input: BirthInput;
+  publicDemo?: boolean;
+}) {
+  const [liveRequested, setLiveRequested] = useState(false);
+
+  if (!publicDemo) return <LiveLoveConsultation input={input} />;
+
+  return (
+    <>
+      <LoveConsultationExample />
+      <details
+        className="ai-love-live-access"
+        onToggle={(event) => {
+          if (event.currentTarget.open) setLiveRequested(true);
+        }}
+      >
+        <summary>접근 코드로 실제 AI 상담하기</summary>
+        <p className="ai-love-live-note">
+          실제 AI 상담은 별도 접근 코드가 있는 경우에 이용할 수 있어요. 코드를
+          받지 않았다면 위의 상담 예시와 기본 사주 해설을 읽어보세요.
+        </p>
+        {liveRequested && <LiveLoveConsultation input={input} />}
+      </details>
+    </>
+  );
+}
+
+function LiveLoveConsultation({ input }: { input: BirthInput }) {
   const id = useId();
   const [availability, setAvailability] = useState<LoveAiAvailability | null>(
     null,

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 4173",
+    "dev:demo": "SAJU_PUBLIC_DEMO=1 SAJU_AI_ENABLED=0 next dev --hostname 127.0.0.1 --port 4173",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1 --port 4173",
     "typecheck": "tsc --noEmit",
